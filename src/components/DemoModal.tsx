@@ -42,11 +42,10 @@ export default function DemoModal() {
   const [isPlaying, setIsPlaying] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Interactive local states within chapters
-  const [selectedLossTab, setSelectedLossTab] = useState<'all' | 'commission' | 'spoilage' | 'auction'>('all');
+  const [selectedLossTab, setSelectedLossTab] = useState<'commission' | 'spoilage' | 'auction'>('commission');
   const [activeRouteMode, setActiveRouteMode] = useState<'mandi' | 'farmpath'>('farmpath');
   const [activeFaqId, setActiveFaqId] = useState<number>(1);
-  const [gainBreakdownTab, setGainBreakdownTab] = useState<'total' | 'commission' | 'rot' | 'premium'>('total');
+  const [gainBreakdownTab, setGainBreakdownTab] = useState<'commission' | 'rot' | 'premium'>('commission');
 
   const totalChapters = 4;
 
@@ -351,6 +350,49 @@ export default function DemoModal() {
                 </button>
               </div>
 
+              {/* Active Loss Inspector Details Box */}
+              <div className="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-xs space-y-1 animate-in fade-in duration-150">
+                {selectedLossTab === 'commission' && (
+                  <>
+                    <div className="flex items-center justify-between text-rose-400 font-bold">
+                      <span>Inspection: Middleman Intermediary Commission (−₹{mandiCommission.toLocaleString()})</span>
+                      <span className="font-mono text-[10px] bg-rose-500/20 px-2 py-0.5 rounded-full border border-rose-500/30">
+                        8.5% Statutory Mandi Fee
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-[11px] leading-relaxed">
+                      At APMC mandis, registered commission agents (Arhatiyas) automatically slice <strong>8.5%</strong> off the gross auction total before issuing farmer payment chits. On this lot, that is <strong>₹{mandiCommission.toLocaleString()}</strong> lost before factoring in handling and weighment tips.
+                    </p>
+                  </>
+                )}
+                {selectedLossTab === 'spoilage' && (
+                  <>
+                    <div className="flex items-center justify-between text-amber-400 font-bold">
+                      <span>Inspection: Open-Sun Thermal Spoilage ({mandiSpoilageKg.toLocaleString()} kg lost)</span>
+                      <span className="font-mono text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30">
+                        {mandiSpoilagePct.toFixed(1)}% Spoilage Rate
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-[11px] leading-relaxed">
+                      Lacking cold pre-cooling, produce loaded into open tractor trolleys endures high ambient heat ({conditions.ambientTemperatureC}°C) and 48+ hours in auction queues. Cellular respiration accelerates exponentially, turning <strong>{mandiSpoilageKg.toLocaleString()} kg</strong> of harvest into rotten waste dumped outside the mandi yard.
+                    </p>
+                  </>
+                )}
+                {selectedLossTab === 'auction' && (
+                  <>
+                    <div className="flex items-center justify-between text-blue-400 font-bold">
+                      <span>Inspection: Distress Spot Auction Payout (₹{mandiTotalPayout.toLocaleString()} Total)</span>
+                      <span className="font-mono text-[10px] bg-blue-500/20 px-2 py-0.5 rounded-full border border-blue-500/30">
+                        ₹{netMandi.toFixed(2)}/kg Realized
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-[11px] leading-relaxed">
+                      With produce rapidly rotting in the heat, the farmer has zero bargaining power and must accept whatever distress price the local buyer cartel bids, yielding only <strong>₹{netMandi.toFixed(2)} / kg</strong> net cash in hand.
+                    </p>
+                  </>
+                )}
+              </div>
+
               {/* Dynamic Status Quo Bill */}
               <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
                 <div>
@@ -563,7 +605,7 @@ export default function DemoModal() {
                     onClick={() => setGainBreakdownTab('commission')}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       gainBreakdownTab === 'commission'
-                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs'
+                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs ring-1 ring-emerald-400'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
@@ -576,7 +618,7 @@ export default function DemoModal() {
                     onClick={() => setGainBreakdownTab('rot')}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       gainBreakdownTab === 'rot'
-                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs'
+                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs ring-1 ring-emerald-400'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
@@ -589,7 +631,7 @@ export default function DemoModal() {
                     onClick={() => setGainBreakdownTab('premium')}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       gainBreakdownTab === 'premium'
-                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs'
+                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs ring-1 ring-emerald-400'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
@@ -597,6 +639,60 @@ export default function DemoModal() {
                     <span className="text-[11px] text-slate-300">Factory Price Premium</span>
                     <span className="text-[10px] text-slate-500 block mt-0.5">Direct contract price advantage</span>
                   </button>
+                </div>
+
+                {/* Active Gain Inspection Details Drawer */}
+                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs space-y-1.5 animate-in fade-in duration-150">
+                  {gainBreakdownTab === 'commission' && (
+                    <>
+                      <div className="flex items-center justify-between text-emerald-400 font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <DollarSign className="w-4 h-4" />
+                          <span>Inspecting: 0% Middleman Commission (+₹{commissionSaved.toLocaleString()} Saved)</span>
+                        </span>
+                        <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          100% Retained by Farmer
+                        </span>
+                      </div>
+                      <p className="text-slate-300 text-[11px] leading-relaxed">
+                        At conventional APMC Mandis, commission agents (Arhatiyas) automatically slice <strong>8.5%</strong> statutory commission plus loading and weighment fees (totaling <strong>₹{mandiCommission.toLocaleString()}</strong>). FARMPATH connects registered FPOs directly to the corporate factory gate under Section 40, reducing middleman commission to <strong>₹0.00</strong>.
+                      </p>
+                    </>
+                  )}
+
+                  {gainBreakdownTab === 'rot' && (
+                    <>
+                      <div className="flex items-center justify-between text-emerald-400 font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <Snowflake className="w-4 h-4" />
+                          <span>Inspecting: Arrhenius Rot Prevention (+₹{rotValueSaved.toLocaleString()} Value Saved)</span>
+                        </span>
+                        <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          {rotKgSaved.toLocaleString()} kg Fresh Produce Saved
+                        </span>
+                      </div>
+                      <p className="text-slate-300 text-[11px] leading-relaxed">
+                        In an open tractor sitting 54 hours in 38°C sun, biological decay destroys <strong>{mandiSpoilagePct.toFixed(1)}% ({mandiSpoilageKg.toLocaleString()} kg)</strong> of harvest. Pre-chilling produce to 8°C at Doaba Cold Hub suppresses respiration, slashing spoilage down to <strong>{farmpathSpoilagePct.toFixed(1)}% ({farmpathSpoilageKg.toLocaleString()} kg)</strong> and saving <strong>{rotKgSaved.toLocaleString()} kg</strong> from rotting into mud.
+                      </p>
+                    </>
+                  )}
+
+                  {gainBreakdownTab === 'premium' && (
+                    <>
+                      <div className="flex items-center justify-between text-emerald-400 font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <Factory className="w-4 h-4" />
+                          <span>Inspecting: Factory Contract Price Premium (+₹{pricePremiumTotal.toLocaleString()})</span>
+                        </span>
+                        <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          Direct Corporate Purchase Order
+                        </span>
+                      </div>
+                      <p className="text-slate-300 text-[11px] leading-relaxed">
+                        Mandi auctions force distress pricing during daily arrival gluts (often dropping to ₹{netMandi.toFixed(2)}/kg). Direct food processors (Cremica, Del Monte) offer guaranteed forward purchase orders at premium rates (up to ₹{netFarmpath.toFixed(2)}/kg), providing a reliable price floor protected by digital escrow.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
 
