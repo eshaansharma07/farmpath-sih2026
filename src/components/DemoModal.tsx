@@ -57,6 +57,21 @@ export default function DemoModal() {
   const totalGain = results.totalLotValueGain || 29500;
   const gainPct = (((netFarmpath - netMandi) / Math.max(0.1, netMandi)) * 100).toFixed(1);
 
+  // Dynamic values calculated directly from active commodity and solver results
+  const mandiTotalPayout = Math.round(netMandi * cropLot.quantityKg);
+  const farmpathTotalPayout = Math.round(netFarmpath * cropLot.quantityKg);
+  const mandiCommission = baseline?.costBreakdown.intermediaryCostTotal || Math.round(mandiTotalPayout * 0.085);
+  const farmpathCommission = optimal?.costBreakdown.intermediaryCostTotal || 0;
+  const commissionSaved = Math.max(0, Math.round(mandiCommission - farmpathCommission));
+
+  const mandiSpoilageKg = baseline?.costBreakdown.expectedSpoilageKg || Math.round(cropLot.quantityKg * 0.081);
+  const mandiSpoilagePct = baseline?.costBreakdown.expectedSpoilagePct || 8.1;
+  const farmpathSpoilageKg = optimal?.costBreakdown.expectedSpoilageKg || Math.round(cropLot.quantityKg * 0.032);
+  const farmpathSpoilagePct = optimal?.costBreakdown.expectedSpoilagePct || 3.2;
+  const rotKgSaved = Math.max(0, Math.round(mandiSpoilageKg - farmpathSpoilageKg));
+  const rotValueSaved = Math.round(rotKgSaved * (baseline?.costBreakdown.grossPricePerKg || 27));
+  const pricePremiumTotal = Math.max(0, totalGain - commissionSaved - rotValueSaved) || Math.round(cropLot.quantityKg * 2.2);
+
   // Auto-play timer (7s per chapter for comfortable digestion)
   useEffect(() => {
     if (isPlaying && isDemoModalOpen) {
@@ -98,7 +113,7 @@ export default function DemoModal() {
     { id: 1, title: 'The Harvest Lot', tag: '1. Setup' },
     { id: 2, title: 'The Mandi Trap', tag: '2. Leak' },
     { id: 3, title: 'FARMPATH Engine', tag: '3. Route' },
-    { id: 4, title: '+₹29,500 Realization', tag: '4. Victory' },
+    { id: 4, title: `+₹${totalGain.toLocaleString()} Gain`, tag: '4. Victory' },
   ];
 
   return (
@@ -272,7 +287,7 @@ export default function DemoModal() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <span className="text-[11px] font-bold text-rose-400 uppercase tracking-wider">Step 2 • The Systemic Drain</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-white">Why Mandi Trades Drain ₹29,500</h2>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">Why Mandi Trades Drain ₹{totalGain.toLocaleString()}</h2>
                 </div>
                 <span className="text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
                   Status Quo Bottleneck
@@ -293,7 +308,7 @@ export default function DemoModal() {
                     <span className="font-bold text-rose-400 text-sm">1. Arhatiya Cut</span>
                     <span className="font-mono text-xs font-bold text-rose-300">−8.5%</span>
                   </div>
-                  <div className="text-lg font-black text-white font-mono mt-1">−₹8,032</div>
+                  <div className="text-lg font-black text-white font-mono mt-1">−₹{mandiCommission.toLocaleString()}</div>
                   <p className="text-[11px] text-slate-400 mt-1">
                     Middleman commission deducted before farmer receives single rupee.
                   </p>
@@ -309,9 +324,9 @@ export default function DemoModal() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-amber-400 text-sm">2. 48h Sun Rot</span>
-                    <span className="font-mono text-xs font-bold text-amber-300">8.1% Rot</span>
+                    <span className="font-mono text-xs font-bold text-amber-300">{mandiSpoilagePct.toFixed(1)}% Rot</span>
                   </div>
-                  <div className="text-lg font-black text-white font-mono mt-1">405 kg Lost</div>
+                  <div className="text-lg font-black text-white font-mono mt-1">{mandiSpoilageKg.toLocaleString()} kg Lost</div>
                   <p className="text-[11px] text-slate-400 mt-1">
                     Tractors idle 54h in 38°C heat; produce decomposes into mud in queue.
                   </p>
@@ -327,9 +342,9 @@ export default function DemoModal() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-blue-400 text-sm">3. Distress Sale</span>
-                    <span className="font-mono text-xs font-bold text-blue-300">₹18.90/kg</span>
+                    <span className="font-mono text-xs font-bold text-blue-300">₹{netMandi.toFixed(2)}/kg</span>
                   </div>
-                  <div className="text-lg font-black text-white font-mono mt-1">₹94,500 Total</div>
+                  <div className="text-lg font-black text-white font-mono mt-1">₹{mandiTotalPayout.toLocaleString()} Total</div>
                   <p className="text-[11px] text-slate-400 mt-1">
                     Zero contract protection; farmer takes whatever local cartel bids.
                   </p>
@@ -435,7 +450,7 @@ export default function DemoModal() {
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block uppercase">Produce Spoilage</span>
-                      <span className="font-bold text-emerald-400 font-mono">3.2% (Only 160 kg)</span>
+                      <span className="font-bold text-emerald-400 font-mono">{farmpathSpoilagePct.toFixed(1)}% (Only {farmpathSpoilageKg.toLocaleString()} kg)</span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block uppercase">Net Realization</span>
@@ -480,11 +495,11 @@ export default function DemoModal() {
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block uppercase">Arhatiya Fee</span>
-                      <span className="font-bold text-rose-400 font-mono">−8.5% Cut (-₹8,032)</span>
+                      <span className="font-bold text-rose-400 font-mono">−8.5% Cut (-₹{mandiCommission.toLocaleString()})</span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block uppercase">Rot In Queue</span>
-                      <span className="font-bold text-rose-400 font-mono">8.1% (405 kg thrown away)</span>
+                      <span className="font-bold text-rose-400 font-mono">{mandiSpoilagePct.toFixed(1)}% ({mandiSpoilageKg.toLocaleString()} kg lost)</span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block uppercase">Net Realization</span>
@@ -496,7 +511,7 @@ export default function DemoModal() {
             </div>
           )}
 
-          {/* ================= CHAPTER 4: THE +₹29,500 PAYOUT (INTERACTIVE BREAKDOWN) ================= */}
+          {/* ================= CHAPTER 4: THE DYNAMIC PAYOUT (INTERACTIVE BREAKDOWN) ================= */}
           {currentChapter === 4 && (
             <div className="space-y-4 animate-in fade-in duration-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -514,7 +529,7 @@ export default function DemoModal() {
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-slate-400">
                     <span>Option A: Conventional APMC Mandi</span>
-                    <span className="font-mono text-white">₹{Math.round(netMandi * cropLot.quantityKg).toLocaleString()}</span>
+                    <span className="font-mono text-white">₹{mandiTotalPayout.toLocaleString()}</span>
                   </div>
                   <div className="h-4 bg-slate-800 rounded-full overflow-hidden">
                     <div 
@@ -527,7 +542,7 @@ export default function DemoModal() {
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-emerald-400 font-bold">
                     <span>Option B: FARMPATH Intelligent Direct Route</span>
-                    <span className="font-mono text-emerald-400">₹{Math.round(netFarmpath * cropLot.quantityKg).toLocaleString()} (+31.2%)</span>
+                    <span className="font-mono text-emerald-400">₹{farmpathTotalPayout.toLocaleString()} (+{gainPct}%)</span>
                   </div>
                   <div className="h-5 bg-slate-800 rounded-full overflow-hidden">
                     <div 
@@ -541,7 +556,7 @@ export default function DemoModal() {
               {/* Interactive Gain Breakdown Pills */}
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">
-                  👉 Click to inspect where the +₹29,500 comes from:
+                  👉 Click to inspect where the +₹{totalGain.toLocaleString()} comes from:
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                   <button
@@ -552,7 +567,7 @@ export default function DemoModal() {
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    <span className="font-bold text-emerald-400 block">+₹8,032</span>
+                    <span className="font-bold text-emerald-400 block">+₹{commissionSaved.toLocaleString()}</span>
                     <span className="text-[11px] text-slate-300">0% Intermediary Fee</span>
                     <span className="text-[10px] text-slate-500 block mt-0.5">Mandi 8.5% cut eliminated</span>
                   </button>
@@ -565,8 +580,8 @@ export default function DemoModal() {
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    <span className="font-bold text-emerald-400 block">+₹10,535</span>
-                    <span className="text-[11px] text-slate-300">245 kg Rot Prevented</span>
+                    <span className="font-bold text-emerald-400 block">+₹{rotValueSaved.toLocaleString()}</span>
+                    <span className="text-[11px] text-slate-300">{rotKgSaved.toLocaleString()} kg Rot Prevented</span>
                     <span className="text-[10px] text-slate-500 block mt-0.5">Cold hub stops thermal decay</span>
                   </button>
 
@@ -578,9 +593,9 @@ export default function DemoModal() {
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    <span className="font-bold text-emerald-400 block">+₹10,933</span>
+                    <span className="font-bold text-emerald-400 block">+₹{pricePremiumTotal.toLocaleString()}</span>
                     <span className="text-[11px] text-slate-300">Factory Price Premium</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Direct contract @ ₹31.50/kg</span>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">Direct contract price advantage</span>
                   </button>
                 </div>
               </div>
