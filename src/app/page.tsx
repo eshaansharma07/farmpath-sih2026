@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSimulation } from '../lib/context/SimulationContext';
-import { SIHLogoBulb, SIHBadge, MoEBadge } from '../components/SIHLogo';
+import { SIHLogoBulb, SIHBadge } from '../components/SIHLogo';
 import { CropType } from '../lib/engine/types';
 import { 
   ArrowRight, 
@@ -15,21 +15,11 @@ import {
   Tractor, 
   Sliders, 
   Fuel,
-  AlertTriangle,
   CheckCircle2, 
   XCircle,
   Sparkles,
   MapPin,
-  Play,
   RotateCcw,
-  Award,
-  ShieldCheck,
-  Cpu,
-  Layers,
-  FileCheck,
-  Sun,
-  Flame,
-  CloudRain,
   Database
 } from 'lucide-react';
 
@@ -41,8 +31,6 @@ export default function ControlCenter() {
     conditions, 
     updateConditions, 
     resetConditions,
-    setIsDemoModalOpen,
-    setIsTechDrawerOpen,
     t,
   } = useSimulation();
 
@@ -51,19 +39,11 @@ export default function ControlCenter() {
 
   const currentRealization = baseline?.costBreakdown.netFarmerRealizationPerKg || 18.90;
   const bestRealization = optimal?.costBreakdown.netFarmerRealizationPerKg || 24.80;
-  const improvement = results.netRealizationImprovementPerKg || 5.90;
   const totalGain = results.totalLotValueGain || 29500;
 
-  const isHighFuel = conditions.fuelPricePerLiter > 115;
-  const isHeatwave = conditions.ambientTemperatureC > 38;
-  const isDelayed = conditions.transitDelayHours > 6;
-  const isSevereCrisis = isHighFuel || isHeatwave || isDelayed;
-
-  // Real-world baseline normal payout for this lot (at 30°C, 0h delay, 95 Rs/L fuel)
-  const baselineNormalPayout = Math.round(24.80 * cropLot.quantityKg);
   const currentActualPayout = Math.round(bestRealization * cropLot.quantityKg);
   const currentMandiPayout = Math.round(currentRealization * cropLot.quantityKg);
-  const crisisErosionAmount = Math.max(0, baselineNormalPayout - currentActualPayout);
+  const gainPercentage = (((bestRealization - currentRealization) / Math.max(0.1, currentRealization)) * 100).toFixed(1);
 
   const [isSavingDb, setIsSavingDb] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -86,39 +66,25 @@ export default function ControlCenter() {
           totalLotPayout: currentActualPayout,
           baselineMandiPayout: currentMandiPayout,
           totalLotGain: totalGain,
-          gainPercentage: ((bestRealization - currentRealization) / Math.max(0.1, currentRealization)) * 100,
+          gainPercentage: Number(gainPercentage),
           spoilagePct: optimal?.costBreakdown.expectedSpoilagePct || 3.0,
         }),
       });
       const json = await res.json();
-      setSaveStatus(json.source === 'mongodb' ? '✓ Saved to MongoDB Atlas!' : '✓ Recorded (Database Ready)!');
-      setTimeout(() => setSaveStatus(null), 4000);
+      setSaveStatus(json.source === 'mongodb' ? '✓ Saved to MongoDB Atlas!' : '✓ Recorded to Database!');
+      setTimeout(() => setSaveStatus(null), 3500);
     } catch {
       setSaveStatus('✓ Recorded!');
-      setTimeout(() => setSaveStatus(null), 4000);
+      setTimeout(() => setSaveStatus(null), 3500);
     } finally {
       setIsSavingDb(false);
     }
   };
 
-  // Quick real-world preset triggers
-  const applyPreset = (preset: 'normal' | 'fuel' | 'heat' | 'flood' | 'potato' | 'wheat') => {
-    if (preset === 'normal') {
-      updateCropLot({ crop: 'Tomato', quantityKg: 5000, maxTransitHours: 48 });
-      updateConditions({ fuelPricePerLiter: 95, ambientTemperatureC: 30, transitDelayHours: 0 });
-    } else if (preset === 'fuel') {
-      updateConditions({ fuelPricePerLiter: 135, ambientTemperatureC: 32, transitDelayHours: 0 });
-    } else if (preset === 'heat') {
-      updateConditions({ ambientTemperatureC: 45, fuelPricePerLiter: 98, transitDelayHours: 2 });
-    } else if (preset === 'flood') {
-      updateConditions({ transitDelayHours: 24, fuelPricePerLiter: 105, ambientTemperatureC: 34 });
-    } else if (preset === 'potato') {
-      updateCropLot({ crop: 'Potato', quantityKg: 10000, maxTransitHours: 720 });
-      updateConditions({ fuelPricePerLiter: 95, ambientTemperatureC: 30, transitDelayHours: 4 });
-    } else if (preset === 'wheat') {
-      updateCropLot({ crop: 'Wheat', quantityKg: 10000, maxTransitHours: 2160 });
-      updateConditions({ fuelPricePerLiter: 95, ambientTemperatureC: 32, transitDelayHours: 0 });
-    }
+  // Quick crop scenarios
+  const applyCropScenario = (crop: CropType, qty: number, hours: number) => {
+    updateCropLot({ crop, quantityKg: qty, maxTransitHours: hours });
+    updateConditions({ fuelPricePerLiter: 95, ambientTemperatureC: 30, transitDelayHours: 0 });
   };
 
   return (
@@ -141,7 +107,7 @@ export default function ControlCenter() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <span className="text-slate-300 text-xs hidden sm:inline">Ministry of Agriculture & Farmers Welfare</span>
+            <span className="text-slate-300 text-xs hidden sm:inline">Ministry of Agriculture &amp; Farmers Welfare</span>
             <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center p-0.5 shadow-xs shrink-0">
               <img src="/sih-bulb.png" alt="SIH Bulb" className="w-5 h-5 object-contain" />
             </div>
@@ -153,7 +119,7 @@ export default function ControlCenter() {
             FARMPATH <span className="text-emerald-400">|</span> &ldquo;{t.tagline}&rdquo;
           </h1>
           <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-            Addressing Problem Statement <strong className="text-white font-mono">SIH26033</strong>: <em>&ldquo;Multiple intermediaries reduce farmers earnings and increase consumer prices.&rdquo;</em> Instead of building just another marketplace, FARMPATH models the agricultural supply chain as an intelligent decision graph to calculate the most profitable trade route for Indian farmers.
+            Addressing Problem Statement <strong className="text-white font-mono">SIH26033</strong>: <em>&ldquo;Multiple intermediaries reduce farmers earnings and increase consumer prices.&rdquo;</em> FARMPATH calculates the smartest, highest-earning trade route for Indian farmers by connecting them directly to food processors and bulk buyers with zero commission.
           </p>
         </div>
 
@@ -164,7 +130,7 @@ export default function ControlCenter() {
             </div>
             <div>
               <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider block">
-                Active Crop Lot:
+                Selected Harvest Lot:
               </span>
               <span className="text-white font-bold">
                 {cropLot.crop} • {cropLot.quantityKg.toLocaleString()} kg (Farmer: {cropLot.farmerName})
@@ -173,58 +139,57 @@ export default function ControlCenter() {
           </div>
 
           <div className="flex items-center gap-4 text-slate-400 text-[11px]">
-            <span>Freshness Window: <strong className="text-white">{cropLot.maxTransitHours}h</strong></span>
-            <span>Ambient Temp: <strong className="text-white">{conditions.ambientTemperatureC}°C</strong></span>
-            <span>Diesel: <strong className="text-white">₹{conditions.fuelPricePerLiter}/L</strong></span>
+            <span>Freshness Window: <strong className="text-white">{cropLot.maxTransitHours} Hours</strong></span>
+            <span>Fuel Benchmark: <strong className="text-white">₹{conditions.fuelPricePerLiter}/L</strong></span>
           </div>
         </div>
       </div>
 
-      {/* 2. Side-by-Side Comparison Cards */}
+      {/* 2. Side-by-Side Comparison: Mandi vs FARMPATH */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-black text-slate-900">
-              The Real-World Choice: Where should the farmer sell?
+              Where should the farmer sell his harvest?
             </h2>
             <p className="text-xs text-slate-500">
-              Comparing the conventional APMC Mandi route against the FARMPATH recommended route under active conditions.
+              See the exact financial difference between selling at the traditional mandi vs taking the FARMPATH recommended direct route.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <SIHLogoBulb className="w-5 h-5 opacity-60" />
             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-              100% Deterministic Engine
+              100% Calculated Decision
             </span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          {/* Reality A: Traditional APMC Mandi */}
+          {/* Option A: The Old Mandi Route */}
           <div className="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col justify-between space-y-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Option A: What He Does Today
+                  Option A: What Happens Today
                 </span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                  Local APMC Mandi
+                  Conventional APMC Mandi
                 </span>
               </div>
 
               <div>
-                <span className="text-xs text-slate-500 font-medium">Cash Farmer Takes Home in Hand:</span>
+                <span className="text-xs text-slate-500 font-medium">Farmer Takes Home in Hand:</span>
                 <div className="text-3xl sm:text-4xl font-black text-slate-800 mt-0.5 font-mono">
                   ₹{currentRealization.toFixed(2)} <span className="text-base font-normal text-slate-400 font-sans">per kg</span>
                 </div>
                 <div className="text-xs text-slate-600 font-semibold mt-0.5">
-                  Total for {cropLot.quantityKg.toLocaleString()} kg lot: ₹{currentMandiPayout.toLocaleString()}
+                  Total for {cropLot.quantityKg.toLocaleString()} kg: ₹{currentMandiPayout.toLocaleString()}
                 </div>
               </div>
 
-              {/* The Path */}
+              {/* Steps */}
               <div className="p-4 bg-slate-50 rounded-2xl text-xs space-y-2 text-slate-700">
-                <div className="font-bold text-slate-900 text-xs mb-1">Where the truck goes:</div>
+                <div className="font-bold text-slate-900 text-xs mb-1">Where the crop goes:</div>
                 {(baseline?.pathNodes || []).map((node, idx) => (
                   <div key={node.id} className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
@@ -235,54 +200,54 @@ export default function ControlCenter() {
                 ))}
               </div>
 
-              {/* Where money was lost */}
+              {/* Losses */}
               <div className="p-4 bg-rose-50 rounded-2xl border border-rose-100 space-y-2 text-xs text-rose-900">
                 <div className="font-bold text-rose-800 flex items-center gap-1.5">
                   <XCircle className="w-4 h-4 text-rose-600" />
-                  <span>Where the Farmer Loses Money:</span>
+                  <span>Why the Farmer Earns Less Here:</span>
                 </div>
                 <div className="space-y-1.5 text-[11px]">
-                  <div>• <strong>Middlemen (Arhatiya):</strong> 8.5% commission fee takes ₹{(baseline?.costBreakdown.intermediaryCostTotal || 0).toLocaleString()} out of farmer cash.</div>
-                  <div>• <strong>Post-Harvest Spoilage:</strong> {baseline?.costBreakdown.expectedSpoilagePct.toFixed(1)}% ({baseline?.costBreakdown.expectedSpoilageKg} kg) rots in open yard.</div>
-                  <div>• <strong>Freight & Diesel:</strong> ₹{baseline?.costBreakdown.transportCostPerKg.toFixed(2)}/kg at ₹{conditions.fuelPricePerLiter}/L.</div>
+                  <div>• <strong>Middleman Commission:</strong> Arhatiyas take an 8.5% cut (₹{(baseline?.costBreakdown.intermediaryCostTotal || 0).toLocaleString()} fee).</div>
+                  <div>• <strong>Sun &amp; Spoilage:</strong> Produce sits in open queue; {baseline?.costBreakdown.expectedSpoilagePct.toFixed(1)}% rots before auction.</div>
+                  <div>• <strong>Open Market Uncertainty:</strong> Prices fluctuate wildly day to day with zero contracts.</div>
                 </div>
               </div>
             </div>
 
             <div className="text-xs text-slate-400 italic text-center pt-2">
-              The farmer bears all transit risks, while commission agents take guaranteed cuts.
+              The farmer does all the work, while commission agents take guaranteed profits.
             </div>
           </div>
 
-          {/* Reality B: The FARMPATH Intelligent Route */}
+          {/* Option B: The FARMPATH Smart Route */}
           <div className="bg-white rounded-3xl border-2 border-emerald-600 p-6 sm:p-8 shadow-md flex flex-col justify-between space-y-6 relative">
             <div className="absolute -top-3 right-8 bg-green-700 text-white text-[10px] font-black uppercase px-3.5 py-1 rounded-full tracking-wider shadow-xs">
-              {optimal?.name.split('→').pop()?.trim() || 'FARMPATH RECOMMENDED'}
+              {optimal?.pathNodes[optimal.pathNodes.length - 1]?.name || 'FARMPATH RECOMMENDED'}
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-emerald-100 pb-3">
                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                  Option B: The Intelligent Route
+                  Option B: The FARMPATH Route
                 </span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  Direct Value-Add
+                  Direct Value-Add Contract
                 </span>
               </div>
 
               <div>
-                <span className="text-xs text-emerald-800 font-medium">Cash Farmer Takes Home in Hand:</span>
+                <span className="text-xs text-emerald-800 font-medium">Farmer Takes Home in Hand:</span>
                 <div className="text-3xl sm:text-4xl font-black text-emerald-700 mt-0.5 font-mono">
                   ₹{bestRealization.toFixed(2)} <span className="text-base font-normal text-slate-400 font-sans">per kg</span>
                 </div>
                 <div className="text-xs text-emerald-900 font-bold mt-0.5">
-                  Total for {cropLot.quantityKg.toLocaleString()} kg lot: ₹{currentActualPayout.toLocaleString()}
+                  Total for {cropLot.quantityKg.toLocaleString()} kg: ₹{currentActualPayout.toLocaleString()}
                 </div>
               </div>
 
-              {/* The Path */}
+              {/* Steps */}
               <div className="p-4 bg-emerald-50/70 rounded-2xl text-xs space-y-2 text-slate-800 border border-emerald-100">
-                <div className="font-bold text-emerald-900 text-xs mb-1">Where the truck goes:</div>
+                <div className="font-bold text-emerald-900 text-xs mb-1">Where the crop goes:</div>
                 {(optimal?.pathNodes || []).map((node, idx) => (
                   <div key={node.id} className="flex items-center gap-2 font-medium">
                     <span className="w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
@@ -295,50 +260,43 @@ export default function ControlCenter() {
                 ))}
               </div>
 
-              {/* Why it wins */}
+              {/* Gains */}
               <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-2 text-xs text-emerald-900">
                 <div className="font-bold text-emerald-800 flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Why This Route Delivers More Net Cash:</span>
+                  <span>Why the Farmer Earns More:</span>
                 </div>
                 <div className="space-y-1.5 text-[11px]">
-                  <div>• <strong>Zero Middlemen:</strong> Direct buyer contract pays ₹{optimal?.costBreakdown.grossPricePerKg.toFixed(2)}/kg with ₹0 commission.</div>
-                  <div>• <strong>Spoilage Slashed:</strong> Cold pre-cooling holds rot to only {optimal?.costBreakdown.expectedSpoilagePct.toFixed(1)}% ({optimal?.costBreakdown.expectedSpoilageKg} kg).</div>
-                  <div>• <strong>Logistics Freight:</strong> ₹{optimal?.costBreakdown.transportCostPerKg.toFixed(2)}/kg (Total Trip Freight: ₹{optimal?.costBreakdown.transportCostTotal.toLocaleString()}).</div>
+                  <div>• <strong>Zero Middlemen:</strong> Direct contract with ₹0 commission fee deducted.</div>
+                  <div>• <strong>Cold Pre-Cooling:</strong> Crop is chilled early; spoilage drops to only {optimal?.costBreakdown.expectedSpoilagePct.toFixed(1)}%.</div>
+                  <div>• <strong>Guaranteed Payout:</strong> Buyer agrees to fixed ₹{optimal?.costBreakdown.grossPricePerKg.toFixed(2)}/kg purchase price.</div>
                 </div>
               </div>
             </div>
 
-            {/* Reward Pill — Clean, Confident & Accurate */}
+            {/* Reward Banner */}
             <div className="p-3.5 bg-gradient-to-r from-green-700 to-emerald-800 text-white rounded-2xl text-center shadow-xs">
               <span className="text-[11px] text-emerald-200 block font-medium">Extra Cash in Farmer&apos;s Pocket:</span>
               <span className="text-xl sm:text-2xl font-black text-white font-mono">
-                +₹{totalGain.toLocaleString()} Extra Cash (+{(((bestRealization - currentRealization) / Math.max(0.1, currentRealization)) * 100).toFixed(1)}% Gain)
+                +₹{totalGain.toLocaleString()} Extra Cash (+{gainPercentage}% Gain)
               </span>
-              {(isHighFuel || isHeatwave || isDelayed) && (
-                <span className="text-[11px] text-emerald-200 block mt-0.5 font-medium">
-                  {isHighFuel && `Diesel at ₹${conditions.fuelPricePerLiter}/L: FARMPATH absorbs fuel friction and still beats Mandi.`}
-                  {isHeatwave && !isHighFuel && `45°C Heatwave: Cold pre-cooling saves 40%+ tomatoes from rotting.`}
-                  {isDelayed && !isHighFuel && !isHeatwave && `+${conditions.transitDelayHours}h Delay: Cold holding maintains fruit firmness.`}
-                </span>
-              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* 3. The Interactive Demo: "Manual What-If Simulation Lab" */}
+      {/* 3. Interactive What-If Simulation Lab */}
       <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg space-y-6 border border-slate-800">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
           <div>
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
               <h3 className="font-bold text-base sm:text-lg">
-                Interactive What-If Simulation Lab: Choose &amp; Simulate Manually
+                Interactive What-If Simulation Lab: Customize Variables Live
               </h3>
             </div>
             <p className="text-xs text-slate-400">
-              Pick crops, lot sizes, farm origins, or test extreme real-world stress scenarios to watch the solver recalculate live!
+              Pick crops, change harvest load, or adjust diesel prices to see the solver calculate the most profitable path in real time.
             </p>
           </div>
 
@@ -373,60 +331,69 @@ export default function ControlCenter() {
           </div>
         </div>
 
-        {/* Real-World 1-Click Stress Test Presets */}
+        {/* 1-Click Crop Quick Selectors */}
         <div className="p-3 bg-slate-950/60 rounded-2xl border border-slate-800/80 space-y-2">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            ⚡ Quick Real-World Presets (Click to Test Real Scenarios):
+            ⚡ Quick Crop Presets (Click to Test Different Crops):
           </span>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
             <button
-              onClick={() => applyPreset('normal')}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-emerald-950 border border-slate-700 hover:border-emerald-500 font-medium text-left flex items-center gap-1.5 transition-all"
+              onClick={() => applyCropScenario('Tomato', 5000, 48)}
+              className={`p-2.5 rounded-xl border font-medium text-left flex items-center gap-2 transition-all ${
+                cropLot.crop === 'Tomato' ? 'bg-emerald-950 border-emerald-500 text-white' : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700'
+              }`}
             >
-              <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="truncate">1. Normal Day</span>
+              <span className="text-base">🍅</span>
+              <div>
+                <span className="font-bold block">1. Fresh Tomato</span>
+                <span className="text-[10px] text-slate-400">48h fresh • 5,000 kg</span>
+              </div>
             </button>
+
             <button
-              onClick={() => applyPreset('fuel')}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-amber-950 border border-slate-700 hover:border-amber-500 font-medium text-left flex items-center gap-1.5 transition-all"
+              onClick={() => applyCropScenario('Potato', 10000, 720)}
+              className={`p-2.5 rounded-xl border font-medium text-left flex items-center gap-2 transition-all ${
+                cropLot.crop === 'Potato' ? 'bg-emerald-950 border-emerald-500 text-white' : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700'
+              }`}
             >
-              <Fuel className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-              <span className="truncate">2. Diesel ₹135/L</span>
+              <span className="text-base">🥔</span>
+              <div>
+                <span className="font-bold block">2. Potato Tuber</span>
+                <span className="text-[10px] text-slate-400">720h shelf • 10,000 kg</span>
+              </div>
             </button>
+
             <button
-              onClick={() => applyPreset('heat')}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-950 border border-slate-700 hover:border-rose-500 font-medium text-left flex items-center gap-1.5 transition-all"
+              onClick={() => applyCropScenario('Onion', 5000, 360)}
+              className={`p-2.5 rounded-xl border font-medium text-left flex items-center gap-2 transition-all ${
+                cropLot.crop === 'Onion' ? 'bg-emerald-950 border-emerald-500 text-white' : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700'
+              }`}
             >
-              <Flame className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-              <span className="truncate">3. 45°C Heatwave</span>
+              <span className="text-base">🧅</span>
+              <div>
+                <span className="font-bold block">3. Punjab Onion</span>
+                <span className="text-[10px] text-slate-400">360h shelf • 5,000 kg</span>
+              </div>
             </button>
+
             <button
-              onClick={() => applyPreset('flood')}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-blue-950 border border-slate-700 hover:border-blue-500 font-medium text-left flex items-center gap-1.5 transition-all"
+              onClick={() => applyCropScenario('Wheat', 10000, 2160)}
+              className={`p-2.5 rounded-xl border font-medium text-left flex items-center gap-2 transition-all ${
+                cropLot.crop === 'Wheat' ? 'bg-emerald-950 border-emerald-500 text-white' : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700'
+              }`}
             >
-              <CloudRain className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-              <span className="truncate">4. +24h Flood Jam</span>
-            </button>
-            <button
-              onClick={() => applyPreset('potato')}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-yellow-950 border border-slate-700 hover:border-yellow-500 font-medium text-left flex items-center gap-1.5 transition-all"
-            >
-              <span>🥔</span>
-              <span className="truncate">5. Potato Bulk Lot</span>
-            </button>
-            <button
-              onClick={() => applyPreset('wheat')}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-yellow-950 border border-slate-700 hover:border-yellow-500 font-medium text-left flex items-center gap-1.5 transition-all"
-            >
-              <span>🌾</span>
-              <span className="truncate">6. Wheat Grain</span>
+              <span className="text-base">🌾</span>
+              <div>
+                <span className="font-bold block">4. Wheat Grain</span>
+                <span className="text-[10px] text-slate-400">MSP Mandi vs Mill</span>
+              </div>
             </button>
           </div>
         </div>
 
-        {/* Manual Parameter Selection */}
+        {/* 3 Step Controls */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Step 1: Pick Crop */}
+          {/* Step 1: Crop */}
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/60 space-y-2.5">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
               1. Choose Crop:
@@ -454,7 +421,7 @@ export default function ControlCenter() {
             </div>
           </div>
 
-          {/* Step 2: Pick Quantity */}
+          {/* Step 2: Quantity */}
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/60 space-y-2.5">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
               2. Choose Harvest Quantity:
@@ -481,7 +448,7 @@ export default function ControlCenter() {
             </div>
           </div>
 
-          {/* Step 3: Pick Origin Farm */}
+          {/* Step 3: Origin Farm */}
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/60 space-y-2.5">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
               3. Choose Farm Location:
@@ -509,104 +476,44 @@ export default function ControlCenter() {
           </div>
         </div>
 
-        {/* Step 4: Real-World Physical Sliders */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-          {/* Diesel Fuel Slider */}
-          <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-300 flex items-center gap-1.5">
-                <Fuel className="w-3.5 h-3.5 text-orange-400" />
-                <span>Diesel Price:</span>
-              </span>
-              <span className="font-mono font-bold text-amber-300 text-sm">
-                ₹{conditions.fuelPricePerLiter.toFixed(0)} / L
-              </span>
-            </div>
-            <input
-              type="range"
-              min="90"
-              max="135"
-              step="1"
-              value={conditions.fuelPricePerLiter}
-              onChange={e => updateConditions({ fuelPricePerLiter: Number(e.target.value) })}
-              className="w-full accent-amber-400 h-2 bg-slate-700 rounded-lg cursor-pointer"
-            />
-            <div className="flex justify-between text-[10px] text-slate-400">
-              <span>₹90/L (Normal)</span>
-              <span>₹135/L (Severe crisis)</span>
-            </div>
+        {/* Step 4: Real-Time Diesel Slider */}
+        <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-slate-300 flex items-center gap-1.5">
+              <Fuel className="w-3.5 h-3.5 text-orange-400" />
+              <span>Simulate Diesel Fuel Price Impact:</span>
+            </span>
+            <span className="font-mono font-bold text-amber-300 text-sm">
+              ₹{conditions.fuelPricePerLiter.toFixed(0)} / Liter
+            </span>
           </div>
-
-          {/* Ambient Temperature Slider */}
-          <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-300 flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-rose-400" />
-                <span>Ambient Temperature:</span>
-              </span>
-              <span className="font-mono font-bold text-rose-300 text-sm">
-                {conditions.ambientTemperatureC.toFixed(0)}°C
-              </span>
-            </div>
-            <input
-              type="range"
-              min="20"
-              max="45"
-              step="1"
-              value={conditions.ambientTemperatureC}
-              onChange={e => updateConditions({ ambientTemperatureC: Number(e.target.value) })}
-              className="w-full accent-rose-400 h-2 bg-slate-700 rounded-lg cursor-pointer"
-            />
-            <div className="flex justify-between text-[10px] text-slate-400">
-              <span>20°C (Mild)</span>
-              <span>45°C (Heatwave Rot)</span>
-            </div>
-          </div>
-
-          {/* Transit Delay Slider */}
-          <div className="p-4 bg-slate-800/60 rounded-2xl border border-slate-700 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-300 flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-blue-400" />
-                <span>Transit Delay:</span>
-              </span>
-              <span className="font-mono font-bold text-blue-300 text-sm">
-                +{conditions.transitDelayHours.toFixed(0)} hrs
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="24"
-              step="1"
-              value={conditions.transitDelayHours}
-              onChange={e => updateConditions({ transitDelayHours: Number(e.target.value) })}
-              className="w-full accent-blue-400 h-2 bg-slate-700 rounded-lg cursor-pointer"
-            />
-            <div className="flex justify-between text-[10px] text-slate-400">
-              <span>0h (Smooth)</span>
-              <span>+24h (Monsoon Flood)</span>
-            </div>
+          <input
+            type="range"
+            min="90"
+            max="125"
+            step="1"
+            value={conditions.fuelPricePerLiter}
+            onChange={e => updateConditions({ fuelPricePerLiter: Number(e.target.value) })}
+            className="w-full accent-amber-400 h-2 bg-slate-700 rounded-lg cursor-pointer"
+          />
+          <div className="flex justify-between text-[10px] text-slate-400">
+            <span>₹90/L (Normal)</span>
+            <span>Slide to test how transport costs adjust in real time</span>
+            <span>₹125/L (Fuel Spike)</span>
           </div>
         </div>
 
-        {/* Live Reaction & Explanation Box */}
+        {/* Live Calculation Output */}
         <div className="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/80 text-emerald-200 text-xs leading-relaxed transition-all flex flex-wrap items-center justify-between gap-4">
           <div className="max-w-xl">
             <div className="font-bold text-sm flex items-center gap-2 mb-0.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-white">
-                ⚡ Dynamic Route Selected: {optimal?.name || 'Direct Channel'}
+                FARMPATH Recommended: {optimal?.pathNodes[optimal.pathNodes.length - 1]?.name || 'Direct Buyer'}
               </span>
             </div>
             <p className="text-slate-300 text-xs">
-              {isHighFuel 
-                ? `Diesel at ₹${conditions.fuelPricePerLiter}/L adds logistics friction. FARMPATH routes to ${optimal?.pathNodes[optimal.pathNodes.length - 1]?.name} to maximize farmer margin, netting ₹${bestRealization.toFixed(2)}/kg (+₹${totalGain.toLocaleString()} over Mandi).`
-                : isHeatwave
-                ? `Summer heat at ${conditions.ambientTemperatureC}°C: Pre-cooling at collection hub preserves fruit quality and avoids open-yard rotting.`
-                : isDelayed
-                ? `Transit delay of +${conditions.transitDelayHours}h: Buyer quality deductions accounted for; route prioritized for cold holding.`
-                : optimal?.explainability?.summary || optimal?.description || 'Optimal trade route delivering highest net farmer payout with zero intermediary commission.'}
+              By cutting out APMC commission agents and delivering directly with cold pre-cooling, the farmer nets ₹{bestRealization.toFixed(2)}/kg — taking home an extra +₹{totalGain.toLocaleString()} profit compared to the local mandi.
             </p>
           </div>
 
@@ -618,7 +525,7 @@ export default function ControlCenter() {
               </span>
             </div>
             <div className="text-right pl-3 border-l border-slate-700">
-              <span className="text-[10px] text-slate-400 block uppercase">Total Lot Income:</span>
+              <span className="text-[10px] text-slate-400 block uppercase">Total Take-Home:</span>
               <span className="text-lg font-black text-emerald-400 font-mono">
                 ₹{currentActualPayout.toLocaleString()}
               </span>
