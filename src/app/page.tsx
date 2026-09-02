@@ -23,9 +23,7 @@ import {
   Database,
   Play
 } from 'lucide-react';
-import PanIndiaCorridors from '../components/PanIndiaCorridors';
 import GroundRealitySafeguards from '../components/GroundRealitySafeguards';
-import { RegionalCorridor } from '../lib/data/corridors';
 
 export default function ControlCenter() {
   const { 
@@ -49,18 +47,6 @@ export default function ControlCenter() {
   const currentActualPayout = Math.round(bestRealization * cropLot.quantityKg);
   const currentMandiPayout = Math.round(currentRealization * cropLot.quantityKg);
   const gainPercentage = (((bestRealization - currentRealization) / Math.max(0.1, currentRealization)) * 100).toFixed(1);
-
-  const [selectedCorridorId, setSelectedCorridorId] = useState<string>('punjab');
-
-  const handleSelectCorridor = (corridor: RegionalCorridor) => {
-    setSelectedCorridorId(corridor.id);
-    updateCropLot({
-      crop: corridor.crop,
-      quantityKg: corridor.quantityKg,
-      farmerName: corridor.farmerName,
-      farmLocation: corridor.originLocation,
-    });
-  };
 
   const [isSavingDb, setIsSavingDb] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -317,13 +303,7 @@ export default function ControlCenter() {
         </div>
       </div>
 
-      {/* 3. Pan-India Regional Agricultural Corridors */}
-      <PanIndiaCorridors
-        activeCorridorId={selectedCorridorId}
-        onSelectCorridor={handleSelectCorridor}
-      />
-
-      {/* 4. Interactive What-If Simulation Lab */}
+      {/* 3. Interactive What-If Simulation Lab */}
       <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg space-y-6 border border-slate-800">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
           <div>
