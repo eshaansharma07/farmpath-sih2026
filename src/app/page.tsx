@@ -20,7 +20,8 @@ import {
   Sparkles,
   MapPin,
   RotateCcw,
-  Database
+  Database,
+  Play
 } from 'lucide-react';
 
 export default function ControlCenter() {
@@ -32,6 +33,7 @@ export default function ControlCenter() {
     updateConditions, 
     resetConditions,
     t,
+    setIsDemoModalOpen,
   } = useSimulation();
 
   const optimal = results.optimalRoute;
@@ -121,6 +123,21 @@ export default function ControlCenter() {
           <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
             Addressing Problem Statement <strong className="text-white font-mono">SIH26033</strong>: <em>&ldquo;Multiple intermediaries reduce farmers earnings and increase consumer prices.&rdquo;</em> FARMPATH calculates the smartest, highest-earning trade route for Indian farmers by connecting them directly to food processors and bulk buyers with zero commission.
           </p>
+        </div>
+
+        {/* Big Prominent START DEMO Button */}
+        <div className="flex flex-wrap items-center gap-3.5 pt-1">
+          <button
+            onClick={() => setIsDemoModalOpen(true)}
+            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 hover:from-emerald-300 hover:to-green-400 text-slate-950 font-black text-sm sm:text-base shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 flex items-center gap-2.5 transition-all transform hover:-translate-y-0.5 border border-emerald-200 cursor-pointer shrink-0"
+          >
+            <Play className="w-4 h-4 fill-slate-950 text-slate-950" />
+            <span>START LIVE DEMO ▶</span>
+          </button>
+          <div className="text-xs text-slate-300 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Click to watch the step-by-step interactive walkthrough for evaluators</span>
+          </div>
         </div>
 
         <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
