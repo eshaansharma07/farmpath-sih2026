@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="public/sih-logo.png" alt="Smart India Hackathon 2026" width="480" />
+<img src="public/sih-bulb.png" alt="Smart India Hackathon 2026" width="160" />
 
 ### **"Find the Route that Earns the Farmer More"**
 **A Constrained Multi-Echelon Agricultural Supply-Chain Optimization Platform**
