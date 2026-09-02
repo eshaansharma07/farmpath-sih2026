@@ -53,8 +53,6 @@ export default function Footer() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span>Official Submission for <strong>Smart India Hackathon 2026</strong></span>
             <span>•</span>
-            <span>Ministry of Agriculture &amp; Farmers Welfare</span>
-            <span>•</span>
             <span>Problem Statement: <strong className="text-white font-mono">SIH26033</strong></span>
           </div>
 

@@ -227,7 +227,7 @@ export default function GroundRealitySafeguards() {
             <div className="p-3.5 bg-white rounded-xl border border-amber-100 space-y-1.5 shadow-xs">
               <span className="font-bold text-amber-900 block">Daily 6:00 AM Cron Ingestion:</span>
               <p className="text-[11px] text-slate-600 leading-relaxed">
-                Our backend runs automated daily batch syncs against the <strong>Ministry of Agriculture Agmarknet REST API</strong> across 2,800+ national APMC mandis to establish daily modal and maximum price vectors.
+                Our backend runs automated daily batch syncs against the <strong>Central Agmarknet &amp; e-NAM REST API</strong> across 2,800+ national APMC mandis to establish daily modal and maximum price vectors.
               </p>
             </div>
             <div className="p-3.5 bg-white rounded-xl border border-amber-100 space-y-1.5 shadow-xs">

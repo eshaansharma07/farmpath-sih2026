@@ -111,10 +111,10 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right: Ministry + SIH Bulb on Right */}
+          {/* Right: Team ID + SIH Bulb on Right */}
           <div className="flex items-center gap-3 shrink-0">
-            <span className="text-slate-300 text-[11px] hidden lg:inline whitespace-nowrap">
-              Ministry of Agriculture & Farmers Welfare
+            <span className="text-amber-400 font-bold text-[11px] hidden lg:inline whitespace-nowrap">
+              Team: 2brain Cells
             </span>
             <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center p-0.5 shadow-xs shrink-0">

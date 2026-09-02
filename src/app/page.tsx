@@ -114,7 +114,7 @@ export default function ControlCenter() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <span className="text-slate-300 text-xs hidden sm:inline">Ministry of Agriculture &amp; Farmers Welfare</span>
+            <span className="text-amber-300 font-bold text-xs hidden sm:inline">SIH26033</span>
             <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center p-0.5 shadow-xs shrink-0">
               <img src="/sih-bulb.png" alt="SIH Bulb" className="w-5 h-5 object-contain" />
             </div>

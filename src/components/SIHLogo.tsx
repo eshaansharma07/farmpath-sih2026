@@ -58,10 +58,10 @@ export function MoEBadge({ variant = "light" }: { variant?: "light" | "dark" }) 
       />
       <div className="flex flex-col text-left leading-none">
         <span className="font-bold text-[9px] tracking-tight uppercase text-slate-400">
-          Govt. of India
+          SIH 2026
         </span>
         <span className={`font-black text-[11px] mt-0.5 ${isDark ? "text-white" : "text-slate-800"}`}>
-          Ministry of Agriculture
+          Team 2brain Cells
         </span>
       </div>
     </div>
