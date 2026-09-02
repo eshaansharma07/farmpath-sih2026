@@ -101,11 +101,11 @@ export default function ControlCenter() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-orange-400 font-black text-sm tracking-wide">SMART INDIA HACKATHON 2026</span>
+                <span className="text-orange-400 font-black text-sm tracking-wide">{t.sihHeader}</span>
                 <span className="text-slate-500">•</span>
-                <span className="text-emerald-400 font-bold text-xs">Software Category</span>
+                <span className="text-emerald-400 font-bold text-xs">{t.category}</span>
               </div>
-              <span className="text-slate-400 text-xs">Problem Statement: <strong className="text-white font-mono">SIH26033</strong></span>
+              <span className="text-slate-400 text-xs">{t.problemCode}</span>
             </div>
           </div>
 
@@ -122,7 +122,7 @@ export default function ControlCenter() {
             FARMPATH <span className="text-emerald-400">|</span> &ldquo;{t.tagline}&rdquo;
           </h1>
           <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-            Addressing Problem Statement <strong className="text-white font-mono">SIH26033</strong>: <em>&ldquo;Multiple intermediaries reduce farmers earnings and increase consumer prices.&rdquo;</em> FARMPATH calculates the smartest, highest-earning trade route for Indian farmers by connecting them directly to food processors and bulk buyers with zero commission.
+            {t.heroDesc}
           </p>
         </div>
 
@@ -133,11 +133,11 @@ export default function ControlCenter() {
             className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 hover:from-emerald-300 hover:to-green-400 text-slate-950 font-black text-sm sm:text-base shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 flex items-center gap-2.5 transition-all transform hover:-translate-y-0.5 border border-emerald-200 cursor-pointer shrink-0"
           >
             <Play className="w-4 h-4 fill-slate-950 text-slate-950" />
-            <span>START LIVE DEMO ▶</span>
+            <span>{t.startLiveDemo}</span>
           </button>
           <div className="text-xs text-slate-300 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Click to watch the step-by-step interactive walkthrough for evaluators</span>
+            <span>{t.startDemoSub}</span>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export default function ControlCenter() {
             </div>
             <div>
               <span className="text-[10px] text-orange-400 font-bold uppercase tracking-wider block">
-                Selected Harvest Lot:
+                {t.selectedLot}
               </span>
               <span className="text-white font-bold">
                 {cropLot.crop} • {cropLot.quantityKg.toLocaleString()} kg (Farmer: {cropLot.farmerName})
@@ -157,8 +157,8 @@ export default function ControlCenter() {
           </div>
 
           <div className="flex items-center gap-4 text-slate-400 text-[11px]">
-            <span>Freshness Window: <strong className="text-white">{cropLot.maxTransitHours} Hours</strong></span>
-            <span>Fuel Benchmark: <strong className="text-white">₹{conditions.fuelPricePerLiter}/L</strong></span>
+            <span>{t.freshnessWindow} <strong className="text-white">{cropLot.maxTransitHours} Hours</strong></span>
+            <span>{t.fuelBenchmark} <strong className="text-white">₹{conditions.fuelPricePerLiter}/L</strong></span>
           </div>
         </div>
       </div>
@@ -168,16 +168,16 @@ export default function ControlCenter() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-black text-slate-900">
-              Where should the farmer sell his harvest?
+              {t.whereToSellTitle}
             </h2>
             <p className="text-xs text-slate-500">
-              See the exact financial difference between selling at the traditional mandi vs taking the FARMPATH recommended direct route.
+              {t.whereToSellDesc}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <SIHLogoBulb className="w-5 h-5 opacity-60" />
             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-              100% Calculated Decision
+              {t.calculatedBadge}
             </span>
           </div>
         </div>
@@ -188,26 +188,26 @@ export default function ControlCenter() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Option A: What Happens Today
+                  {t.optionATitle}
                 </span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                  Conventional APMC Mandi
+                  {t.optionASubtitle}
                 </span>
               </div>
 
               <div>
-                <span className="text-xs text-slate-500 font-medium">Farmer Takes Home in Hand:</span>
+                <span className="text-xs text-slate-500 font-medium">{t.takeHomeLabel}</span>
                 <div className="text-3xl sm:text-4xl font-black text-slate-800 mt-0.5 font-mono">
                   ₹{currentRealization.toFixed(2)} <span className="text-base font-normal text-slate-400 font-sans">per kg</span>
                 </div>
                 <div className="text-xs text-slate-600 font-semibold mt-0.5">
-                  Total for {cropLot.quantityKg.toLocaleString()} kg: ₹{currentMandiPayout.toLocaleString()}
+                  {t.totalForLotPrefix} {cropLot.quantityKg.toLocaleString()} kg: ₹{currentMandiPayout.toLocaleString()}
                 </div>
               </div>
 
               {/* Steps */}
               <div className="p-4 bg-slate-50 rounded-2xl text-xs space-y-2 text-slate-700">
-                <div className="font-bold text-slate-900 text-xs mb-1">Where the crop goes:</div>
+                <div className="font-bold text-slate-900 text-xs mb-1">{t.whereCropGoes}</div>
                 {(baseline?.pathNodes || []).map((node, idx) => (
                   <div key={node.id} className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center shrink-0">
@@ -222,18 +222,18 @@ export default function ControlCenter() {
               <div className="p-4 bg-rose-50 rounded-2xl border border-rose-100 space-y-2 text-xs text-rose-900">
                 <div className="font-bold text-rose-800 flex items-center gap-1.5">
                   <XCircle className="w-4 h-4 text-rose-600" />
-                  <span>Why the Farmer Earns Less Here:</span>
+                  <span>{t.whyFarmerLoses}</span>
                 </div>
                 <div className="space-y-1.5 text-[11px]">
-                  <div>• <strong>Middleman Commission:</strong> Arhatiyas take an 8.5% cut (₹{(baseline?.costBreakdown.intermediaryCostTotal || 0).toLocaleString()} fee).</div>
-                  <div>• <strong>Sun &amp; Spoilage:</strong> Produce sits in open queue; {baseline?.costBreakdown.expectedSpoilagePct.toFixed(1)}% rots before auction.</div>
-                  <div>• <strong>Open Market Uncertainty:</strong> Prices fluctuate wildly day to day with zero contracts.</div>
+                  <div>• {t.mandiCutText}</div>
+                  <div>• {t.mandiSpoilageText}</div>
+                  <div>• {t.mandiUncertaintyText}</div>
                 </div>
               </div>
             </div>
 
             <div className="text-xs text-slate-400 italic text-center pt-2">
-              The farmer does all the work, while commission agents take guaranteed profits.
+              {t.mandiFooter}
             </div>
           </div>
 
@@ -246,26 +246,26 @@ export default function ControlCenter() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-emerald-100 pb-3">
                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-                  Option B: The FARMPATH Route
+                  {t.optionBTitle}
                 </span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  Direct Value-Add Contract
+                  {t.optionBSubtitle}
                 </span>
               </div>
 
               <div>
-                <span className="text-xs text-emerald-800 font-medium">Farmer Takes Home in Hand:</span>
+                <span className="text-xs text-emerald-800 font-medium">{t.takeHomeLabel}</span>
                 <div className="text-3xl sm:text-4xl font-black text-emerald-700 mt-0.5 font-mono">
                   ₹{bestRealization.toFixed(2)} <span className="text-base font-normal text-slate-400 font-sans">per kg</span>
                 </div>
                 <div className="text-xs text-emerald-900 font-bold mt-0.5">
-                  Total for {cropLot.quantityKg.toLocaleString()} kg: ₹{currentActualPayout.toLocaleString()}
+                  {t.totalForLotPrefix} {cropLot.quantityKg.toLocaleString()} kg: ₹{currentActualPayout.toLocaleString()}
                 </div>
               </div>
 
               {/* Steps */}
               <div className="p-4 bg-emerald-50/70 rounded-2xl text-xs space-y-2 text-slate-800 border border-emerald-100">
-                <div className="font-bold text-emerald-900 text-xs mb-1">Where the crop goes:</div>
+                <div className="font-bold text-emerald-900 text-xs mb-1">{t.whereCropGoes}</div>
                 {(optimal?.pathNodes || []).map((node, idx) => (
                   <div key={node.id} className="flex items-center gap-2 font-medium">
                     <span className="w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
@@ -282,21 +282,21 @@ export default function ControlCenter() {
               <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-2 text-xs text-emerald-900">
                 <div className="font-bold text-emerald-800 flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Why the Farmer Earns More:</span>
+                  <span>{t.whyFarmerEarnsMore}</span>
                 </div>
                 <div className="space-y-1.5 text-[11px]">
-                  <div>• <strong>Zero Middlemen:</strong> Direct contract with ₹0 commission fee deducted.</div>
-                  <div>• <strong>Cold Pre-Cooling:</strong> Crop is chilled early; spoilage drops to only {optimal?.costBreakdown.expectedSpoilagePct.toFixed(1)}%.</div>
-                  <div>• <strong>Guaranteed Payout:</strong> Buyer agrees to fixed ₹{optimal?.costBreakdown.grossPricePerKg.toFixed(2)}/kg purchase price.</div>
+                  <div>• {t.zeroMiddlemenText}</div>
+                  <div>• {t.coldCoolingText}</div>
+                  <div>• {t.guaranteedPayoutText}</div>
                 </div>
               </div>
             </div>
 
             {/* Reward Banner */}
             <div className="p-3.5 bg-gradient-to-r from-green-700 to-emerald-800 text-white rounded-2xl text-center shadow-xs">
-              <span className="text-[11px] text-emerald-200 block font-medium">Extra Cash in Farmer&apos;s Pocket:</span>
+              <span className="text-[11px] text-emerald-200 block font-medium">{t.extraCashLabel}</span>
               <span className="text-xl sm:text-2xl font-black text-white font-mono">
-                +₹{totalGain.toLocaleString()} Extra Cash (+{gainPercentage}% Gain)
+                +₹{totalGain.toLocaleString()} (+{gainPercentage}%)
               </span>
             </div>
           </div>
@@ -310,11 +310,11 @@ export default function ControlCenter() {
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
               <h3 className="font-bold text-base sm:text-lg">
-                Interactive What-If Simulation Lab: Customize Variables Live
+                {t.simLabTitle}
               </h3>
             </div>
             <p className="text-xs text-slate-400">
-              Pick crops, change harvest load, or adjust diesel prices to see the solver calculate the most profitable path in real time.
+              {t.simLabDesc}
             </p>
           </div>
 
@@ -330,21 +330,21 @@ export default function ControlCenter() {
               className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-950/80 hover:bg-blue-900 text-blue-300 flex items-center gap-1.5 transition-colors border border-blue-700/60"
             >
               <Database className="w-3.5 h-3.5 text-blue-400" />
-              <span>{isSavingDb ? 'Saving...' : 'Save to DB'}</span>
+              <span>{isSavingDb ? '...' : t.saveToDbBtn}</span>
             </button>
             <button
               onClick={resetConditions}
               className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-1.5 transition-colors border border-slate-700"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset</span>
+              <span>{t.resetBtn}</span>
             </button>
             <Link
               href="/simulator"
               className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white flex items-center gap-1.5 shadow-xs transition-colors"
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span>Deep Simulator &rarr;</span>
+              <span>Simulator &rarr;</span>
             </Link>
           </div>
         </div>
@@ -352,7 +352,7 @@ export default function ControlCenter() {
         {/* 1-Click Crop Quick Selectors */}
         <div className="p-3 bg-slate-950/60 rounded-2xl border border-slate-800/80 space-y-2">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            ⚡ Quick Crop Presets (Click to Test Different Crops):
+            ⚡ {t.quickCropPresets}
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
             <button
@@ -414,7 +414,7 @@ export default function ControlCenter() {
           {/* Step 1: Crop */}
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/60 space-y-2.5">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              1. Choose Crop:
+              {t.chooseCrop}
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
               {([
@@ -442,7 +442,7 @@ export default function ControlCenter() {
           {/* Step 2: Quantity */}
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/60 space-y-2.5">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              2. Choose Harvest Quantity:
+              {t.chooseQty}
             </span>
             <div className="grid grid-cols-3 gap-2 text-xs">
               {[
@@ -469,7 +469,7 @@ export default function ControlCenter() {
           {/* Step 3: Origin Farm */}
           <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/60 space-y-2.5">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-              3. Choose Farm Location:
+              {t.chooseFarm}
             </span>
             <div className="space-y-1.5 text-xs">
               {[
@@ -499,7 +499,7 @@ export default function ControlCenter() {
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-slate-300 flex items-center gap-1.5">
               <Fuel className="w-3.5 h-3.5 text-orange-400" />
-              <span>Simulate Diesel Fuel Price Impact:</span>
+              <span>{t.dieselSliderTitle}</span>
             </span>
             <span className="font-mono font-bold text-amber-300 text-sm">
               ₹{conditions.fuelPricePerLiter.toFixed(0)} / Liter
@@ -515,9 +515,9 @@ export default function ControlCenter() {
             className="w-full accent-amber-400 h-2 bg-slate-700 rounded-lg cursor-pointer"
           />
           <div className="flex justify-between text-[10px] text-slate-400">
-            <span>₹90/L (Normal)</span>
+            <span>{t.fuelNormal}</span>
             <span>Slide to test how transport costs adjust in real time</span>
-            <span>₹125/L (Fuel Spike)</span>
+            <span>{t.fuelSpike}</span>
           </div>
         </div>
 
@@ -527,11 +527,11 @@ export default function ControlCenter() {
             <div className="font-bold text-sm flex items-center gap-2 mb-0.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-white">
-                FARMPATH Recommended: {optimal?.pathNodes[optimal.pathNodes.length - 1]?.name || 'Direct Buyer'}
+                {t.solverOutputTitle} {optimal?.pathNodes[optimal.pathNodes.length - 1]?.name || 'Direct Buyer'}
               </span>
             </div>
             <p className="text-slate-300 text-xs">
-              By cutting out APMC commission agents and delivering directly with cold pre-cooling, the farmer nets ₹{bestRealization.toFixed(2)}/kg — taking home an extra +₹{totalGain.toLocaleString()} profit compared to the local mandi.
+              {t.solverOutputText}
             </p>
           </div>
 
@@ -543,7 +543,7 @@ export default function ControlCenter() {
               </span>
             </div>
             <div className="text-right pl-3 border-l border-slate-700">
-              <span className="text-[10px] text-slate-400 block uppercase">Total Take-Home:</span>
+              <span className="text-[10px] text-slate-400 block uppercase">{t.totalTakeHome}</span>
               <span className="text-lg font-black text-emerald-400 font-mono">
                 ₹{currentActualPayout.toLocaleString()}
               </span>
