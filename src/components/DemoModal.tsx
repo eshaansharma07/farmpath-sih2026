@@ -42,10 +42,10 @@ export default function DemoModal() {
   const [isPlaying, setIsPlaying] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [selectedLossTab, setSelectedLossTab] = useState<'commission' | 'spoilage' | 'auction'>('commission');
+  const [selectedLossTab, setSelectedLossTab] = useState<'commission' | 'spoilage' | 'auction' | null>('commission');
   const [activeRouteMode, setActiveRouteMode] = useState<'mandi' | 'farmpath'>('farmpath');
   const [activeFaqId, setActiveFaqId] = useState<number>(1);
-  const [gainBreakdownTab, setGainBreakdownTab] = useState<'commission' | 'rot' | 'premium'>('commission');
+  const [gainBreakdownTab, setGainBreakdownTab] = useState<'commission' | 'rot' | 'premium' | null>('commission');
 
   const totalChapters = 4;
 
@@ -597,103 +597,139 @@ export default function DemoModal() {
 
               {/* Interactive Gain Breakdown Pills */}
               <div className="space-y-2">
-                <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">
-                  👉 Click to inspect where the +₹{totalGain.toLocaleString()} comes from:
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    👉 Tap any card to inspect where the +₹{totalGain.toLocaleString()} comes from:
+                  </span>
+                  {gainBreakdownTab && (
+                    <button
+                      type="button"
+                      onClick={() => setGainBreakdownTab(null)}
+                      className="text-[10px] text-slate-400 hover:text-white underline cursor-pointer"
+                    >
+                      Hide Details
+                    </button>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                   <button
-                    onClick={() => setGainBreakdownTab('commission')}
-                    className={`p-3 rounded-xl border text-left transition-all ${
+                    type="button"
+                    onClick={() => setGainBreakdownTab(prev => prev === 'commission' ? null : 'commission')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       gainBreakdownTab === 'commission'
-                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs ring-1 ring-emerald-400'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-emerald-950/80 border-emerald-400 text-white shadow-md ring-2 ring-emerald-400/40'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                     }`}
                   >
-                    <span className="font-bold text-emerald-400 block">+₹{commissionSaved.toLocaleString()}</span>
-                    <span className="text-[11px] text-slate-300">0% Intermediary Fee</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Mandi 8.5% cut eliminated</span>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-emerald-400 text-sm sm:text-base">+₹{commissionSaved.toLocaleString()}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300">
+                        {gainBreakdownTab === 'commission' ? '▲ Open' : '▼ Inspect'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-300 block font-semibold mt-0.5">0% Intermediary Fee</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Mandi 8.5% cut eliminated</span>
                   </button>
 
                   <button
-                    onClick={() => setGainBreakdownTab('rot')}
-                    className={`p-3 rounded-xl border text-left transition-all ${
+                    type="button"
+                    onClick={() => setGainBreakdownTab(prev => prev === 'rot' ? null : 'rot')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       gainBreakdownTab === 'rot'
-                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs ring-1 ring-emerald-400'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-emerald-950/80 border-emerald-400 text-white shadow-md ring-2 ring-emerald-400/40'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                     }`}
                   >
-                    <span className="font-bold text-emerald-400 block">+₹{rotValueSaved.toLocaleString()}</span>
-                    <span className="text-[11px] text-slate-300">{rotKgSaved.toLocaleString()} kg Rot Prevented</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Cold hub stops thermal decay</span>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-emerald-400 text-sm sm:text-base">+₹{rotValueSaved.toLocaleString()}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300">
+                        {gainBreakdownTab === 'rot' ? '▲ Open' : '▼ Inspect'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-300 block font-semibold mt-0.5">{rotKgSaved.toLocaleString()} kg Rot Saved</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Cold hub stops thermal decay</span>
                   </button>
 
                   <button
-                    onClick={() => setGainBreakdownTab('premium')}
-                    className={`p-3 rounded-xl border text-left transition-all ${
+                    type="button"
+                    onClick={() => setGainBreakdownTab(prev => prev === 'premium' ? null : 'premium')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       gainBreakdownTab === 'premium'
-                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs ring-1 ring-emerald-400'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-emerald-950/80 border-emerald-400 text-white shadow-md ring-2 ring-emerald-400/40'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                     }`}
                   >
-                    <span className="font-bold text-emerald-400 block">+₹{pricePremiumTotal.toLocaleString()}</span>
-                    <span className="text-[11px] text-slate-300">Factory Price Premium</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Direct contract price advantage</span>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-emerald-400 text-sm sm:text-base">+₹{pricePremiumTotal.toLocaleString()}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300">
+                        {gainBreakdownTab === 'premium' ? '▲ Open' : '▼ Inspect'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-300 block font-semibold mt-0.5">Factory Price Premium</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Direct contract price advantage</span>
                   </button>
                 </div>
 
                 {/* Active Gain Inspection Details Drawer */}
-                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs space-y-1.5 animate-in fade-in duration-150">
-                  {gainBreakdownTab === 'commission' && (
-                    <>
-                      <div className="flex items-center justify-between text-emerald-400 font-bold">
-                        <span className="flex items-center gap-1.5">
-                          <DollarSign className="w-4 h-4" />
-                          <span>Inspecting: 0% Middleman Commission (+₹{commissionSaved.toLocaleString()} Saved)</span>
-                        </span>
-                        <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                          100% Retained by Farmer
-                        </span>
-                      </div>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">
-                        At conventional APMC Mandis, commission agents (Arhatiyas) automatically slice <strong>8.5%</strong> statutory commission plus loading and weighment fees (totaling <strong>₹{mandiCommission.toLocaleString()}</strong>). FARMPATH connects registered FPOs directly to the corporate factory gate under Section 40, reducing middleman commission to <strong>₹0.00</strong>.
-                      </p>
-                    </>
-                  )}
+                {gainBreakdownTab ? (
+                  <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/50 text-xs space-y-1.5 animate-in fade-in duration-200 shadow-lg">
+                    {gainBreakdownTab === 'commission' && (
+                      <>
+                        <div className="flex items-center justify-between text-emerald-300 font-bold border-b border-emerald-800/60 pb-1.5">
+                          <span className="flex items-center gap-1.5 text-xs sm:text-sm">
+                            <DollarSign className="w-4 h-4 text-emerald-400" />
+                            <span>1. Middleman Commission Elimination (+₹{commissionSaved.toLocaleString()} Saved)</span>
+                          </span>
+                          <span className="font-mono text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                            100% Retained by Farmer
+                          </span>
+                        </div>
+                        <p className="text-slate-200 text-xs leading-relaxed pt-1">
+                          At conventional APMC Mandis, commission agents (Arhatiyas) automatically slice <strong>8.5% statutory commission</strong> plus loading and weighment deductions (totaling <strong>₹{mandiCommission.toLocaleString()}</strong>). FARMPATH connects registered FPOs directly to the corporate factory gate under Section 40, completely reducing middleman commission to <strong>₹0.00</strong>.
+                        </p>
+                      </>
+                    )}
 
-                  {gainBreakdownTab === 'rot' && (
-                    <>
-                      <div className="flex items-center justify-between text-emerald-400 font-bold">
-                        <span className="flex items-center gap-1.5">
-                          <Snowflake className="w-4 h-4" />
-                          <span>Inspecting: Arrhenius Rot Prevention (+₹{rotValueSaved.toLocaleString()} Value Saved)</span>
-                        </span>
-                        <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                          {rotKgSaved.toLocaleString()} kg Fresh Produce Saved
-                        </span>
-                      </div>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">
-                        In an open tractor sitting 54 hours in 38°C sun, biological decay destroys <strong>{mandiSpoilagePct.toFixed(1)}% ({mandiSpoilageKg.toLocaleString()} kg)</strong> of harvest. Pre-chilling produce to 8°C at Doaba Cold Hub suppresses respiration, slashing spoilage down to <strong>{farmpathSpoilagePct.toFixed(1)}% ({farmpathSpoilageKg.toLocaleString()} kg)</strong> and saving <strong>{rotKgSaved.toLocaleString()} kg</strong> from rotting into mud.
-                      </p>
-                    </>
-                  )}
+                    {gainBreakdownTab === 'rot' && (
+                      <>
+                        <div className="flex items-center justify-between text-emerald-300 font-bold border-b border-emerald-800/60 pb-1.5">
+                          <span className="flex items-center gap-1.5 text-xs sm:text-sm">
+                            <Snowflake className="w-4 h-4 text-emerald-400" />
+                            <span>2. Arrhenius Thermal Spoilage Prevention (+₹{rotValueSaved.toLocaleString()} Saved)</span>
+                          </span>
+                          <span className="font-mono text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                            {rotKgSaved.toLocaleString()} kg Fresh Produce Saved
+                          </span>
+                        </div>
+                        <p className="text-slate-200 text-xs leading-relaxed pt-1">
+                          In an open tractor sitting 54 hours in 38°C sun, biological respiration decay destroys <strong>{mandiSpoilagePct.toFixed(1)}% ({mandiSpoilageKg.toLocaleString()} kg)</strong> of harvest. Pre-chilling produce to 8°C at Doaba Cold Hub suppresses respiration, slashing spoilage down to <strong>{farmpathSpoilagePct.toFixed(1)}% ({farmpathSpoilageKg.toLocaleString()} kg)</strong> and saving <strong>{rotKgSaved.toLocaleString()} kg</strong> from rotting into mud.
+                        </p>
+                      </>
+                    )}
 
-                  {gainBreakdownTab === 'premium' && (
-                    <>
-                      <div className="flex items-center justify-between text-emerald-400 font-bold">
-                        <span className="flex items-center gap-1.5">
-                          <Factory className="w-4 h-4" />
-                          <span>Inspecting: Factory Contract Price Premium (+₹{pricePremiumTotal.toLocaleString()})</span>
-                        </span>
-                        <span className="font-mono text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                          Direct Corporate Purchase Order
-                        </span>
-                      </div>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">
-                        Mandi auctions force distress pricing during daily arrival gluts (often dropping to ₹{netMandi.toFixed(2)}/kg). Direct food processors (Cremica, Del Monte) offer guaranteed forward purchase orders at premium rates (up to ₹{netFarmpath.toFixed(2)}/kg), providing a reliable price floor protected by digital escrow.
-                      </p>
-                    </>
-                  )}
-                </div>
+                    {gainBreakdownTab === 'premium' && (
+                      <>
+                        <div className="flex items-center justify-between text-emerald-300 font-bold border-b border-emerald-800/60 pb-1.5">
+                          <span className="flex items-center gap-1.5 text-xs sm:text-sm">
+                            <Factory className="w-4 h-4 text-emerald-400" />
+                            <span>3. Guaranteed Factory Price Premium (+₹{pricePremiumTotal.toLocaleString()})</span>
+                          </span>
+                          <span className="font-mono text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                            Direct Corporate PO
+                          </span>
+                        </div>
+                        <p className="text-slate-200 text-xs leading-relaxed pt-1">
+                          Mandi auctions force distress pricing during daily arrival gluts (often dropping to ₹{netMandi.toFixed(2)}/kg). Direct food processors (Cremica, Del Monte) offer guaranteed forward purchase orders at premium rates (up to ₹{netFarmpath.toFixed(2)}/kg), providing a reliable price floor protected by digital escrow.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-slate-950/40 border border-slate-800 text-center text-xs text-slate-500">
+                    💡 Tap any of the 3 cards above to view its detailed mathematical &amp; physical breakdown
+                  </div>
+                )}
               </div>
 
               {/* 4 Real-World Execution Safeguards */}
