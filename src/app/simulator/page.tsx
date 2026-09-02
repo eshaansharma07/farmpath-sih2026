@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSimulation } from '../../lib/context/SimulationContext';
 import { 
   Sliders, 
@@ -12,9 +12,14 @@ import {
   DollarSign, 
   Building2, 
   Sparkles,
-  CheckCircle2,
+  CheckCircle2, 
   HelpCircle,
-  Tractor
+  Tractor,
+  Snowflake,
+  ShieldCheck,
+  AlertTriangle,
+  Info,
+  ArrowRight
 } from 'lucide-react';
 import { solveSupplyChainOptimization, DEFAULT_SIMULATION_CONDITIONS } from '../../lib/engine/optimizer';
 
@@ -38,6 +43,18 @@ export default function WhatIfSimulatorPage() {
   const initialOptimal = baselineResults.optimalRoute;
 
   const hasRouteChanged = currentOptimal?.id !== initialOptimal?.id;
+
+  // Active knowledge card tab
+  const [activeKnowledgeTab, setActiveKnowledgeTab] = useState<'diesel' | 'coldchain' | 'insurance'>('diesel');
+
+  // Exact real-world fuel calculations
+  const baselineDiesel = 95;
+  const currentDiesel = conditions.fuelPricePerLiter;
+  const dieselDiff = currentDiesel - baselineDiesel;
+  const baselineTransportPerKg = initialOptimal?.costBreakdown.transportCostPerKg || 1.45;
+  const currentTransportPerKg = currentOptimal?.costBreakdown.transportCostPerKg || 1.45;
+  const transportDiffPerKg = Math.round((currentTransportPerKg - baselineTransportPerKg) * 100) / 100;
+  const totalExtraFuelCost = Math.round(Math.abs(transportDiffPerKg) * cropLot.quantityKg);
 
   // Human, simple farmer-friendly advice
   const farmerFriendlyAdvice = React.useMemo(() => {
@@ -160,6 +177,44 @@ export default function WhatIfSimulatorPage() {
           </div>
         </div>
       </div>
+
+      {/* ⚡ REAL-TIME DIESEL REALITY CHECK BANNER */}
+      {dieselDiff !== 0 && (
+        <div className={`p-4 rounded-2xl border text-xs leading-relaxed flex flex-wrap items-center justify-between gap-4 transition-all ${
+          dieselDiff > 0 
+            ? 'bg-amber-950/40 border-amber-500/70 text-amber-200'
+            : 'bg-emerald-950/40 border-emerald-500/70 text-emerald-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base shrink-0 ${
+              dieselDiff > 0 ? 'bg-amber-900/60 text-amber-300' : 'bg-emerald-900/60 text-emerald-300'
+            }`}>
+              <Fuel className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-bold text-sm text-white flex items-center gap-2">
+                <span>{dieselDiff > 0 ? '⛽ Diesel Price Increase Alert' : '⛽ Diesel Price Discount'}</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                  dieselDiff > 0 ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'
+                }`}>
+                  {dieselDiff > 0 ? `+₹${dieselDiff}/L Above Baseline` : `₹${Math.abs(dieselDiff)}/L Savings`}
+                </span>
+              </div>
+              <p className="text-slate-300 text-xs mt-0.5">
+                {dieselDiff > 0 ? (
+                  <>
+                    Higher diesel <strong className="text-white">ALWAYS reduces farmer profit</strong> by burning more fuel. Transport costs jumped from ₹{baselineTransportPerKg.toFixed(2)}/kg to ₹{currentTransportPerKg.toFixed(2)}/kg (eating <strong className="text-amber-300 font-mono">₹{totalExtraFuelCost.toLocaleString()}</strong> on your {cropLot.quantityKg.toLocaleString()} kg lot). FARMPATH prevents worse losses by selecting closer buyers!
+                  </>
+                ) : (
+                  <>
+                    Cheaper fuel reduces transport costs to ₹{currentTransportPerKg.toFixed(2)}/kg, saving you ₹{totalExtraFuelCost.toLocaleString()} on road travel.
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Sliders Grid in Plain English */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-6">
@@ -335,6 +390,155 @@ export default function WhatIfSimulatorPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 📚 INTERACTIVE REAL-WORLD KNOWLEDGE SECTION FOR JUDGES & FARMERS */}
+      <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-900/60 border border-emerald-500/50 flex items-center justify-center text-emerald-400">
+              <Info className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-black text-base sm:text-lg text-white">
+                The Real-World Economics: How Diesel &amp; Cold Storage Actually Work
+              </h3>
+              <p className="text-xs text-slate-400">
+                Click the 3 tabs below to understand how FARMPATH models real agricultural economics for farmers:
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 Interactive Tabs */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <button
+            onClick={() => setActiveKnowledgeTab('diesel')}
+            className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
+              activeKnowledgeTab === 'diesel'
+                ? 'bg-amber-950 border-amber-500 text-white font-bold shadow-xs'
+                : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <Fuel className="w-4 h-4 text-amber-400 shrink-0" />
+            <div className="truncate">
+              <span className="block truncate">1. The Diesel Truth</span>
+              <span className="text-[10px] opacity-70 font-normal">Why profit drops with diesel</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveKnowledgeTab('coldchain')}
+            className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
+              activeKnowledgeTab === 'coldchain'
+                ? 'bg-blue-950 border-blue-500 text-white font-bold shadow-xs'
+                : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <Snowflake className="w-4 h-4 text-blue-400 shrink-0" />
+            <div className="truncate">
+              <span className="block truncate">2. Reefer Chiller AC</span>
+              <span className="text-[10px] opacity-70 font-normal">Cooling burns 2-3L fuel/hr</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveKnowledgeTab('insurance')}
+            className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
+              activeKnowledgeTab === 'insurance'
+                ? 'bg-emerald-950 border-emerald-500 text-white font-bold shadow-xs'
+                : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="truncate">
+              <span className="block truncate">3. Cold Storage as Insurance</span>
+              <span className="text-[10px] opacity-70 font-normal">Prevents ₹40,000 rot wipeout</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Tab 1 Content: The Diesel Truth */}
+        {activeKnowledgeTab === 'diesel' && (
+          <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-4 animate-in fade-in duration-200">
+            <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+              <AlertTriangle className="w-4 h-4" />
+              <span>Does increasing diesel price increase profit? NO — It ALWAYS cuts profit!</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              When diesel goes up from <strong>₹95/L to ₹135/L</strong>, the truck transporter charges more per kilometer. On the same delivery route:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-[11px] text-slate-400 block font-semibold">At ₹95/L Normal Diesel:</span>
+                <span className="text-slate-200 font-mono text-xs">• Transport Freight: ₹1.45 / kg</span>
+                <span className="text-emerald-400 font-bold block text-sm">Farmer Takes Home: ₹29.97 / kg</span>
+              </div>
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-[11px] text-slate-400 block font-semibold">At ₹135/L Expensive Diesel:</span>
+                <span className="text-slate-200 font-mono text-xs">• Transport Freight: ₹1.65 / kg (+20 paise)</span>
+                <span className="text-amber-400 font-bold block text-sm">Farmer Takes Home: ₹29.77 / kg</span>
+              </div>
+            </div>
+            <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl text-[11px] text-amber-200">
+              💡 <strong>The Bottom Line:</strong> The farmer loses 20 paise per kg (₹1,000 lost on a 5,000 kg lot) purely to expensive diesel! FARMPATH&apos;s job is to instantly calculate which route loses the least money.
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2 Content: Reefer Chiller AC */}
+        {activeKnowledgeTab === 'coldchain' && (
+          <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-4 animate-in fade-in duration-200">
+            <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
+              <Snowflake className="w-4 h-4" />
+              <span>How Diesel and Cold Storage Connect: Reefer Cooling Power</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              To transport delicate fresh tomatoes, strawberries, or capsicum in 35°C–45°C summer heat, refrigerated trucks run an active refrigeration compressor (a &ldquo;reefer&rdquo; unit).
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1.5">
+                <span className="text-blue-400 font-bold block">1. Active Chiller Fuel Consumption:</span>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  The cooling unit burns <strong>2 to 3 liters of diesel every single hour</strong> just to keep the cargo chilled. When diesel surges to ₹135/L, keeping an active chiller running over long highway trips becomes very costly.
+                </p>
+              </div>
+              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1.5">
+                <span className="text-emerald-400 font-bold block">2. Travel Distance vs. Nearby Cold Hub:</span>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  When diesel is cheap (₹95/L), driving 80 km straight to a big city factory works. When diesel is ₹135/L, driving far alone burns money. The farmer instead drops the crop at a <strong>nearby cold hub (12 km away)</strong>, where 5 farmers combine lots into one 20-ton truck!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3 Content: Cold Storage as Insurance */}
+        {activeKnowledgeTab === 'insurance' && (
+          <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-4 animate-in fade-in duration-200">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Cold Storage is Crop Insurance Against Highway Jams</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Why do farmers pay for cold storage if it adds a small handling fee? Because of what happens during traffic delays:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-rose-950/40 border border-rose-800/60 rounded-xl space-y-1.5 text-rose-200">
+                <span className="font-bold block text-rose-400">❌ Open Tractor Without Cold Pre-Cooling:</span>
+                <p className="text-[11px] leading-relaxed">
+                  A 12-hour traffic jam in 40°C heat causes <strong>40% of the tomatoes to rot into mush</strong>. On a 5,000 kg lot, that is a direct cash wipeout of over <strong>-₹40,000</strong>!
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-950/40 border border-emerald-800/60 rounded-xl space-y-1.5 text-emerald-200">
+                <span className="font-bold block text-emerald-400">✓ With FARMPATH Cold Pre-Cooling Hub:</span>
+                <p className="text-[11px] leading-relaxed">
+                  Tomatoes chilled at 8°C remain firm for days. Even if diesel costs ₹1,000 more or traffic delays the trip, <strong>zero produce rots</strong>, protecting the entire ₹1,24,000 harvest payout!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
