@@ -10,12 +10,6 @@ import {
   SkipBack, 
   RotateCcw, 
   CheckCircle2, 
-  XCircle,
-  TrendingUp, 
-  MapPin, 
-  Cpu, 
-  Award,
-  ChevronRight,
   AlertTriangle,
   Tractor,
   Snowflake,
@@ -25,23 +19,34 @@ import {
   Fuel,
   Clock,
   Flame,
-  Building,
-  Factory
+  Factory,
+  ArrowRight,
+  TrendingUp,
+  ChevronDown,
+  Sparkles,
+  Zap
 } from 'lucide-react';
 
-interface VisualChapter {
-  id: number;
-  title: string;
-  subtitle: string;
-  badge: string;
-  category: string;
-}
-
 export default function DemoModal() {
-  const { isDemoModalOpen, setIsDemoModalOpen, cropLot, conditions, results } = useSimulation();
+  const { 
+    isDemoModalOpen, 
+    setIsDemoModalOpen, 
+    cropLot, 
+    updateCropLot,
+    conditions, 
+    updateConditions,
+    results 
+  } = useSimulation();
+
   const [currentChapter, setCurrentChapter] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Interactive local states within chapters
+  const [selectedLossTab, setSelectedLossTab] = useState<'all' | 'commission' | 'spoilage' | 'auction'>('all');
+  const [activeRouteMode, setActiveRouteMode] = useState<'mandi' | 'farmpath'>('farmpath');
+  const [activeFaqId, setActiveFaqId] = useState<number>(1);
+  const [gainBreakdownTab, setGainBreakdownTab] = useState<'total' | 'commission' | 'rot' | 'premium'>('total');
 
   const totalChapters = 5;
 
@@ -52,7 +57,7 @@ export default function DemoModal() {
   const totalGain = results.totalLotValueGain || 29500;
   const gainPct = (((netFarmpath - netMandi) / Math.max(0.1, netMandi)) * 100).toFixed(1);
 
-  // Auto-play timer (6 seconds per chapter)
+  // Auto-play timer (7s per chapter for comfortable digestion)
   useEffect(() => {
     if (isPlaying && isDemoModalOpen) {
       timerRef.current = setTimeout(() => {
@@ -61,14 +66,14 @@ export default function DemoModal() {
         } else {
           setIsPlaying(false);
         }
-      }, 6000);
+      }, 7000);
     }
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [isPlaying, currentChapter, isDemoModalOpen]);
 
-  // Keyboard navigation (Arrow keys, Escape)
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isDemoModalOpen) return;
@@ -89,38 +94,36 @@ export default function DemoModal() {
 
   if (!isDemoModalOpen) return null;
 
-  const chapters: VisualChapter[] = [
-    { id: 1, title: 'The Harvest & The Stakes', subtitle: 'Meet Farmer Gurmail Singh (Nakodar, Punjab)', badge: 'Chapter 1 of 5', category: 'The Challenge' },
-    { id: 2, title: 'The Conventional Mandi Trap', subtitle: 'Why the farmer loses ₹29,500 under status quo', badge: 'Chapter 2 of 5', category: 'The Problem' },
-    { id: 3, title: 'The FARMPATH Optimization Engine', subtitle: 'Dynamic graph routing, Arrhenius physics & direct contracts', badge: 'Chapter 3 of 5', category: 'The Innovation' },
-    { id: 4, title: 'The Winning Outcome: +₹29,500 Extra Cash', subtitle: 'Direct farmer realization (+31.2% income increase)', badge: 'Chapter 4 of 5', category: 'The Result' },
-    { id: 5, title: 'Ground Reality & Real-World Safeguards', subtitle: 'How FARMPATH operates legally, operationally & nationally', badge: 'Chapter 5 of 5', category: 'Feasibility' },
+  const chapters = [
+    { id: 1, title: 'The Harvest Lot', tag: '1. The Setup' },
+    { id: 2, title: 'The Mandi Trap', tag: '2. The Leak' },
+    { id: 3, title: 'FARMPATH Engine', tag: '3. The Route' },
+    { id: 4, title: '+₹29,500 Realization', tag: '4. The Payout' },
+    { id: 5, title: 'Ground Safeguards', tag: '5. The Jury Proof' },
   ];
 
-  const currentMeta = chapters[currentChapter - 1];
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-slate-900 text-white rounded-3xl shadow-2xl border border-slate-800 w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
         
-        {/* Modal Header */}
-        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+        {/* Top Header Bar */}
+        <div className="px-6 py-3.5 bg-slate-950 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-black text-sm">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-black text-xs">
               SIH
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-black text-sm sm:text-base text-white">FARMPATH Interactive Evaluator Tour</h3>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <h3 className="font-bold text-sm sm:text-base text-white">FARMPATH Interactive Live Tour</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                   SIH26033
                 </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 border border-slate-700 hidden sm:inline">
                   Team 2brain Cells
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                5 visual chapters showing how FARMPATH puts +₹29,500 extra cash into the farmer&apos;s pocket
+              <p className="text-[11px] text-slate-400">
+                Interactive walkthrough demonstrating how intelligent routing earns the farmer +31.2% more cash
               </p>
             </div>
           </div>
@@ -136,8 +139,8 @@ export default function DemoModal() {
           </button>
         </div>
 
-        {/* 5 Interactive Chapter Navigation Tabs */}
-        <div className="px-4 sm:px-6 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-1 sm:gap-2 overflow-x-auto">
+        {/* 5 Minimal Chapter Steps Header */}
+        <div className="px-4 sm:px-6 py-2 bg-slate-900 border-b border-slate-800 flex items-center gap-1 sm:gap-2">
           {chapters.map(c => {
             const isActive = c.id === currentChapter;
             const isCompleted = c.id < currentChapter;
@@ -148,337 +151,515 @@ export default function DemoModal() {
                   setCurrentChapter(c.id);
                   setIsPlaying(false);
                 }}
-                className={`flex-1 min-w-[100px] sm:min-w-[120px] p-2 rounded-xl text-left transition-all border ${
+                className={`flex-1 py-1.5 px-2 rounded-xl text-center transition-all border text-xs font-bold ${
                   isActive
-                    ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs'
+                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-sm'
                     : isCompleted
-                    ? 'bg-slate-900 border-emerald-500/40 text-slate-300'
-                    : 'bg-slate-900/50 border-slate-800 text-slate-500 hover:text-slate-300'
+                    ? 'bg-slate-800/80 text-emerald-400 border-slate-700 hover:bg-slate-800'
+                    : 'bg-slate-950/40 text-slate-500 border-slate-800/60 hover:text-slate-300'
                 }`}
               >
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-0.5">
-                  <span className={isActive ? 'text-emerald-400' : isCompleted ? 'text-emerald-500' : 'text-slate-500'}>
-                    Ch {c.id}
-                  </span>
-                  {isCompleted && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                <div className="truncate">
+                  <span className="opacity-75 mr-1 font-mono">{c.id}.</span>
+                  <span>{c.title}</span>
                 </div>
-                <span className="text-xs font-bold block truncate">{c.title}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Modal Body: Visual Content Per Chapter */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Interactive Content Canvas */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 bg-slate-900/60">
 
-          {/* Chapter Top Title Banner */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-wider">
-                  {currentMeta.category}
-                </span>
-                <span className="text-xs font-semibold text-slate-400">{currentMeta.badge}</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">{currentMeta.title}</h2>
-              <p className="text-xs font-semibold text-emerald-700">{currentMeta.subtitle}</p>
-            </div>
-
-            <div className="text-right">
-              <span className="text-[10px] text-slate-400 font-mono block uppercase">Walkthrough</span>
-              <div className="text-sm font-black text-slate-900 font-mono">
-                {Math.round((currentChapter / totalChapters) * 100)}% Complete
-              </div>
-            </div>
-          </div>
-
-          {/* ================= CHAPTER 1: THE FARMER & HARVEST ================= */}
+          {/* ================= CHAPTER 1: THE HARVEST LOT & FRESHNESS METER ================= */}
           {currentChapter === 1 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <Tractor className="w-5 h-5 text-emerald-600" />
-                    <span>Farmer Profile</span>
-                  </div>
-                  <div className="space-y-1 text-xs text-slate-700">
-                    <div>Farmer: <strong className="text-slate-900">Gurmail Singh</strong></div>
-                    <div>Location: <strong className="text-slate-900">Nakodar, Jalandhar District</strong></div>
-                    <div>Corridor: <strong className="text-slate-900">Punjab GT-Road (NH-44)</strong></div>
-                  </div>
+            <div className="space-y-4 animate-in fade-in duration-200">
+              {/* Header Headline */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Step 1 • The Human Reality</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">Meet Farmer Gurmail Singh (Nakodar, Punjab)</h2>
                 </div>
-
-                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-2">
-                  <div className="flex items-center gap-2 text-rose-800 font-bold text-sm">
-                    <span className="text-lg">🍅</span>
-                    <span>The Harvest Lot</span>
-                  </div>
-                  <div className="space-y-1 text-xs text-slate-700">
-                    <div>Crop: <strong className="text-slate-900">{cropLot.crop} (Grade-A Table)</strong></div>
-                    <div>Harvest Load: <strong className="text-slate-900 font-mono">{cropLot.quantityKg.toLocaleString()} kg</strong></div>
-                    <div>Labored: <strong className="text-slate-900">4 Months Investment</strong></div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
-                  <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
-                    <Clock className="w-5 h-5 text-amber-600" />
-                    <span>The Perishability Clock</span>
-                  </div>
-                  <div className="space-y-1 text-xs text-slate-700">
-                    <div>Freshness Window: <strong className="text-slate-900 font-mono">{cropLot.maxTransitHours} Hours Max</strong></div>
-                    <div>Outside Temperature: <strong className="text-slate-900 font-mono">{conditions.ambientTemperatureC}°C Summer Heat</strong></div>
-                    <div>Rot Threat: <strong className="text-rose-700 font-bold">Turns to mush if delayed</strong></div>
-                  </div>
+                <div className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+                  GT Road Corridor (NH-44)
                 </div>
               </div>
 
-              {/* The Stakes Visual Card */}
-              <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-3">
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
-                  The Critical Dilemma for Indian Smallholders:
+              {/* Interactive Lot Controller */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">
+                  👉 Tap to Test Different Crops &amp; Volumes:
                 </span>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  Gurmail worked 4 months to harvest 5,000 kg of fresh tomatoes. He now has a strict <strong className="text-amber-300">48-hour window</strong> to sell them. If his truck gets stuck in an APMC mandi queue or takes the wrong road, the entire harvest rots into worthless mush.
-                </p>
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
-                  <span>Which road should Gurmail&apos;s truck take tomorrow dawn?</span>
-                  <span className="font-bold text-emerald-400">FARMPATH Computes the Best Path &rarr;</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                  <button
+                    onClick={() => updateCropLot({ crop: 'Tomato', quantityKg: 5000, maxTransitHours: 48 })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      cropLot.crop === 'Tomato'
+                        ? 'bg-emerald-500/10 border-emerald-500 text-white font-bold'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">🍅 Tomato (5,000 kg)</span>
+                      {cropLot.crop === 'Tomato' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                    </div>
+                    <span className="text-[11px] text-slate-400 block mt-1">High perishable • 48h window</span>
+                  </button>
+
+                  <button
+                    onClick={() => updateCropLot({ crop: 'Onion', quantityKg: 5000, maxTransitHours: 72 })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      cropLot.crop === 'Onion'
+                        ? 'bg-emerald-500/10 border-emerald-500 text-white font-bold'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">🧅 Onion (5,000 kg)</span>
+                      {cropLot.crop === 'Onion' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                    </div>
+                    <span className="text-[11px] text-slate-400 block mt-1">Semi-perishable • 72h window</span>
+                  </button>
+
+                  <button
+                    onClick={() => updateCropLot({ crop: 'Potato', quantityKg: 10000, maxTransitHours: 120 })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      cropLot.crop === 'Potato'
+                        ? 'bg-emerald-500/10 border-emerald-500 text-white font-bold'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">🥔 Potato (10,000 kg)</span>
+                      {cropLot.crop === 'Potato' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                    </div>
+                    <span className="text-[11px] text-slate-400 block mt-1">Sturdy bulk • 120h window</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Freshness Clock Visual Gauge */}
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                    <Clock className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                      The Perishability Clock
+                    </span>
+                    <div className="text-lg font-black text-rose-300 font-mono">
+                      {cropLot.maxTransitHours} Hours Freshness Limit
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      Outside Air: <strong className="text-amber-300">{conditions.ambientTemperatureC}°C Summer Heat</strong>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-slate-300 max-w-sm border-l border-slate-800 pl-4 space-y-1">
+                  <span className="font-bold text-white block">The Dilemma:</span>
+                  <p className="text-slate-400 leading-relaxed text-[11px]">
+                    4 months of back-breaking farming investment. If Gurmail makes the wrong transit decision tomorrow at dawn, his entire harvest turns to rotten mush in the open sun.
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ================= CHAPTER 2: THE CONVENTIONAL MANDI TRAP ================= */}
+          {/* ================= CHAPTER 2: THE MANDI TRAP (INTERACTIVE LOSS EXPLORER) ================= */}
           {currentChapter === 2 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-900 flex items-center gap-3">
-                <AlertTriangle className="w-6 h-6 text-rose-600 shrink-0" />
-                <p className="leading-relaxed">
-                  <strong>The Status Quo Tragedy:</strong> Under conventional trade, Gurmail drives to the local Maqsudan APMC Mandi. Here is the exact breakdown of how he gets drained of ₹29,500:
-                </p>
-              </div>
-
-              {/* 3 Trap Pillars */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-white border border-rose-200 shadow-xs space-y-2">
-                  <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-black text-sm">
-                    1
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-900">Arhatiya Commission Cut</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Commission agents take an <strong>8.5% cut</strong> right off the top before handing over cash.
-                  </p>
-                  <div className="text-sm font-black text-rose-600 font-mono pt-1">
-                    −₹{(baseline?.costBreakdown.intermediaryCostTotal || 8032).toLocaleString()} Lost
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white border border-rose-200 shadow-xs space-y-2">
-                  <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-black text-sm">
-                    2
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-900">Open-Sun Rotting</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Tractors queue for 48+ hours in 38°C heat. <strong>8.1% of the tomatoes rot</strong> before the auction starts.
-                  </p>
-                  <div className="text-sm font-black text-rose-600 font-mono pt-1">
-                    405 kg Rotten in Mud
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white border border-rose-200 shadow-xs space-y-2">
-                  <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-black text-sm">
-                    3
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-900">Distress Payout</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Uncertain daily auctions force distress sales with zero advance contracts or price floors.
-                  </p>
-                  <div className="text-sm font-black text-slate-800 font-mono pt-1">
-                    Takes Home: ₹{netMandi.toFixed(2)}/kg
-                  </div>
-                </div>
-              </div>
-
-              {/* Mandi Total Payout Box */}
-              <div className="p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <span className="text-xs font-bold text-slate-400 block uppercase">Traditional APMC Mandi Take-Home:</span>
-                  <div className="text-2xl font-black text-rose-400 font-mono">
-                    ₹{Math.round(netMandi * cropLot.quantityKg).toLocaleString()} <span className="text-xs text-slate-400 font-sans font-normal">(₹{netMandi.toFixed(2)} / kg)</span>
+                  <span className="text-[11px] font-bold text-rose-400 uppercase tracking-wider">Step 2 • The Systemic Drain</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">Why Mandi Trades Drain ₹29,500</h2>
+                </div>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  Status Quo Bottleneck
+                </span>
+              </div>
+
+              {/* 3 Interactive Loss Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                <button
+                  onClick={() => setSelectedLossTab('commission')}
+                  className={`p-3.5 rounded-2xl border text-left transition-all ${
+                    selectedLossTab === 'commission'
+                      ? 'bg-rose-950/80 border-rose-500 text-white shadow-md'
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-rose-400 text-sm">1. Arhatiya Cut</span>
+                    <span className="font-mono text-xs font-bold text-rose-300">−8.5%</span>
+                  </div>
+                  <div className="text-lg font-black text-white font-mono mt-1">−₹8,032</div>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Middleman commission deducted before farmer receives single rupee.
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => setSelectedLossTab('spoilage')}
+                  className={`p-3.5 rounded-2xl border text-left transition-all ${
+                    selectedLossTab === 'spoilage'
+                      ? 'bg-rose-950/80 border-rose-500 text-white shadow-md'
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-amber-400 text-sm">2. 48h Sun Rot</span>
+                    <span className="font-mono text-xs font-bold text-amber-300">8.1% Rot</span>
+                  </div>
+                  <div className="text-lg font-black text-white font-mono mt-1">405 kg Lost</div>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Tractors idle 54h in 38°C heat; produce decomposes into mud in queue.
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => setSelectedLossTab('auction')}
+                  className={`p-3.5 rounded-2xl border text-left transition-all ${
+                    selectedLossTab === 'auction'
+                      ? 'bg-rose-950/80 border-rose-500 text-white shadow-md'
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-blue-400 text-sm">3. Distress Sale</span>
+                    <span className="font-mono text-xs font-bold text-blue-300">₹18.90/kg</span>
+                  </div>
+                  <div className="text-lg font-black text-white font-mono mt-1">₹94,500 Total</div>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Zero contract protection; farmer takes whatever local cartel bids.
+                  </p>
+                </button>
+              </div>
+
+              {/* Dynamic Status Quo Bill */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs text-slate-400 block uppercase font-mono">
+                    Traditional APMC Mandi Payout:
+                  </span>
+                  <div className="text-2xl font-black text-rose-400 font-mono mt-0.5">
+                    ₹{Math.round(netMandi * cropLot.quantityKg).toLocaleString()}
+                    <span className="text-xs text-slate-400 font-normal font-sans ml-2">
+                      (₹{netMandi.toFixed(2)} / kg realized)
+                    </span>
                   </div>
                 </div>
                 <div className="text-xs text-slate-400 max-w-sm text-right">
-                  The farmer does 100% of the back-breaking labor, but middlemen and heat wipe out his profit margin.
+                  Middlemen take the profits while the smallholder bears 100% of the agricultural and weather risk.
                 </div>
               </div>
             </div>
           )}
 
-          {/* ================= CHAPTER 3: THE FARMPATH ENGINE ================= */}
+          {/* ================= CHAPTER 3: THE FARMPATH ENGINE (INTERACTIVE ROUTE COMPARATOR) ================= */}
           {currentChapter === 3 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <div className="flex items-center gap-2">
-                    <Cpu className="w-5 h-5 text-emerald-400" />
-                    <h3 className="font-black text-sm text-white">FARMPATH Constrained Multi-Echelon Graph Solver</h3>
-                  </div>
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold">0 ms Execution Time</span>
-                </div>
-
-                {/* 3 Step Visual Graph Engine */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                  <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
-                    <span className="font-bold text-blue-400 block flex items-center gap-1.5">
-                      <Factory className="w-4 h-4" />
-                      <span>1. Direct Contract Matching</span>
-                    </span>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">
-                      Scans 59 regional nodes and discovers <strong>Cremica Agro Foods (Phillaur)</strong> offering guaranteed purchase at <strong>₹31.50/kg</strong> with ₹0 commission!
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
-                    <span className="font-bold text-emerald-400 block flex items-center gap-1.5">
-                      <Snowflake className="w-4 h-4" />
-                      <span>2. Arrhenius Pre-Cooling</span>
-                    </span>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">
-                      Routes the truck through <strong>Doaba Cold Hub</strong> (12 km away). Produce pre-cooled at 8°C drops spoilage from <strong>8.1% to only 3.2%</strong>!
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
-                    <span className="font-bold text-amber-400 block flex items-center gap-1.5">
-                      <Fuel className="w-4 h-4" />
-                      <span>3. Fuel Friction Optimization</span>
-                    </span>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">
-                      Indexes freight to dynamic diesel pump tariffs, calculating the exact 46 km shortest route without highway congestion delay.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-xs text-emerald-200 flex items-center justify-between">
-                  <span>Mathematical Guarantee: 100% deterministic arithmetic, zero hardcoded illusions.</span>
-                  <span className="font-bold text-white">Objective: Maximize Net Farmer Realization</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================= CHAPTER 4: THE WINNING OUTCOME ================= */}
-          {currentChapter === 4 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              {/* Grand Comparison Header */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-700 via-green-700 to-emerald-800 text-white shadow-xl flex flex-wrap items-center justify-between gap-4">
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <span className="text-xs text-emerald-200 uppercase font-bold tracking-wider block">
-                    The Grand Hackathon Result:
-                  </span>
-                  <div className="text-3xl sm:text-4xl font-black text-white font-mono mt-0.5">
-                    +₹{totalGain.toLocaleString()} Extra Cash in Pocket
-                  </div>
-                  <span className="text-xs text-emerald-100 font-semibold mt-1 block">
-                    +{gainPct}% Direct Income Gain for Smallholder Farmer Gurmail Singh
-                  </span>
+                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Step 3 • The Algorithmic Engine</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">How FARMPATH Discovers the Route</h2>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white">
-                  <Award className="w-7 h-7" />
+                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  0 ms Constrained Graph Solver
+                </span>
+              </div>
+
+              {/* Interactive Route Mode Selector */}
+              <div className="flex items-center gap-2 p-1.5 bg-slate-950 rounded-2xl border border-slate-800">
+                <button
+                  onClick={() => setActiveRouteMode('mandi')}
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeRouteMode === 'mandi'
+                      ? 'bg-rose-500/20 border border-rose-500/40 text-rose-300'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Option A: Mandi Open Tractor
+                </button>
+                <button
+                  onClick={() => setActiveRouteMode('farmpath')}
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeRouteMode === 'farmpath'
+                      ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Option B: FARMPATH Direct (Recommended)
+                </button>
+              </div>
+
+              {/* Visual Route Pathway Diagram */}
+              {activeRouteMode === 'farmpath' ? (
+                <div className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">1</div>
+                      <div>
+                        <span className="font-bold text-white block">Nakodar Farmgate</span>
+                        <span className="text-[11px] text-slate-400">Origin Loading</span>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-emerald-400 hidden sm:block" />
+
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">2</div>
+                      <div>
+                        <span className="font-bold text-white block">Doaba Cold Hub</span>
+                        <span className="text-[11px] text-emerald-300">Pre-chill to 8°C (Rot drops to 3.2%)</span>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-emerald-400 hidden sm:block" />
+
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold">3</div>
+                      <div>
+                        <span className="font-bold text-white block">Cremica Agro Plant</span>
+                        <span className="text-[11px] text-amber-300">Fixed contract @ ₹31.50/kg</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-800/40 text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Transit Distance</span>
+                      <span className="font-bold text-white font-mono">46 km (Direct GT Road)</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Middleman Fee</span>
+                      <span className="font-bold text-emerald-400 font-mono">₹0.00 (0% Cut)</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Produce Spoilage</span>
+                      <span className="font-bold text-emerald-400 font-mono">3.2% (Only 160 kg)</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Net Realization</span>
+                      <span className="font-bold text-emerald-300 font-mono">₹{netFarmpath.toFixed(2)} / kg</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-5 rounded-2xl bg-rose-950/30 border border-rose-500/30 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold">1</div>
+                      <div>
+                        <span className="font-bold text-white block">Nakodar Farmgate</span>
+                        <span className="text-[11px] text-slate-400">Open Tractor Trailer</span>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-rose-400 hidden sm:block" />
+
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold">2</div>
+                      <div>
+                        <span className="font-bold text-white block">Highway Queue Jams</span>
+                        <span className="text-[11px] text-rose-300">54 hrs in 38°C sun</span>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-rose-400 hidden sm:block" />
+
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-400 font-bold">3</div>
+                      <div>
+                        <span className="font-bold text-white block">Maqsudan APMC Mandi</span>
+                        <span className="text-[11px] text-rose-300">−8.5% Commission</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-rose-800/40 text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Queue Delay</span>
+                      <span className="font-bold text-rose-400 font-mono">+24 Hours Stuck</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Arhatiya Fee</span>
+                      <span className="font-bold text-rose-400 font-mono">−8.5% Cut (-₹8,032)</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Rot In Queue</span>
+                      <span className="font-bold text-rose-400 font-mono">8.1% (405 kg thrown away)</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Net Realization</span>
+                      <span className="font-bold text-rose-300 font-mono">₹{netMandi.toFixed(2)} / kg</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= CHAPTER 4: THE +₹29,500 PAYOUT (INTERACTIVE BREAKDOWN) ================= */}
+          {currentChapter === 4 && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Step 4 • The Financial Victory</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">+₹{totalGain.toLocaleString()} Extra Farmer Cash</h2>
+                </div>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 font-black">
+                  +{gainPct}% Income Increase
+                </span>
+              </div>
+
+              {/* Side by Side Comparative Bar */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-slate-400">
+                    <span>Option A: Conventional APMC Mandi</span>
+                    <span className="font-mono text-white">₹{Math.round(netMandi * cropLot.quantityKg).toLocaleString()}</span>
+                  </div>
+                  <div className="h-4 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-slate-600 rounded-full transition-all duration-500" 
+                      style={{ width: `${(netMandi / netFarmpath) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-emerald-400 font-bold">
+                    <span>Option B: FARMPATH Intelligent Direct Route</span>
+                    <span className="font-mono text-emerald-400">₹{Math.round(netFarmpath * cropLot.quantityKg).toLocaleString()} (+31.2%)</span>
+                  </div>
+                  <div className="h-5 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-emerald-500 to-green-400 rounded-full transition-all duration-500" 
+                      style={{ width: '100%' }}
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Visual Side-by-Side Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                {/* Mandi Card */}
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Option A: Conventional APMC Mandi
-                  </span>
-                  <div className="text-2xl font-black text-slate-800 font-mono">
-                    ₹{Math.round(netMandi * cropLot.quantityKg).toLocaleString()}
-                  </div>
-                  <div className="space-y-1 text-slate-500 text-[11px] pt-1 border-t border-slate-200">
-                    <div>• Net Realization: ₹{netMandi.toFixed(2)} / kg</div>
-                    <div>• Arhatiya Commission: −8.5% (−₹8,032)</div>
-                    <div>• Spoilage Rot: 8.1% (405 kg thrown away)</div>
-                  </div>
-                </div>
+              {/* Interactive Gain Breakdown Pills */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-slate-400 block uppercase tracking-wider">
+                  👉 Click to inspect where the +₹29,500 comes from:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                  <button
+                    onClick={() => setGainBreakdownTab('commission')}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      gainBreakdownTab === 'commission'
+                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span className="font-bold text-emerald-400 block">+₹8,032</span>
+                    <span className="text-[11px] text-slate-300">0% Intermediary Fee</span>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">Mandi 8.5% cut eliminated</span>
+                  </button>
 
-                {/* FARMPATH Card */}
-                <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-500 space-y-2 shadow-xs">
-                  <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">
-                    Option B: FARMPATH Direct Value-Add
-                  </span>
-                  <div className="text-2xl font-black text-emerald-700 font-mono">
-                    ₹{Math.round(netFarmpath * cropLot.quantityKg).toLocaleString()}
-                  </div>
-                  <div className="space-y-1 text-emerald-900 text-[11px] pt-1 border-t border-emerald-200 font-medium">
-                    <div>• Net Realization: ₹{netFarmpath.toFixed(2)} / kg (+₹5.90/kg)</div>
-                    <div>• Commission Deducted: ₹0.00 (Zero Middlemen)</div>
-                    <div>• Spoilage Rot: 3.2% (245 kg produce saved)</div>
-                  </div>
+                  <button
+                    onClick={() => setGainBreakdownTab('rot')}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      gainBreakdownTab === 'rot'
+                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span className="font-bold text-emerald-400 block">+₹10,535</span>
+                    <span className="text-[11px] text-slate-300">245 kg Rot Prevented</span>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">Cold hub stops thermal decay</span>
+                  </button>
+
+                  <button
+                    onClick={() => setGainBreakdownTab('premium')}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      gainBreakdownTab === 'premium'
+                        ? 'bg-emerald-950 border-emerald-500 text-white shadow-xs'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span className="font-bold text-emerald-400 block">+₹10,933</span>
+                    <span className="text-[11px] text-slate-300">Factory Price Premium</span>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">Direct contract @ ₹31.50/kg</span>
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ================= CHAPTER 5: REAL-WORLD SAFEGUARDS ================= */}
+          {/* ================= CHAPTER 5: GROUND REALITY SAFEGUARDS (INTERACTIVE JURY PROOF) ================= */}
           {currentChapter === 5 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-center gap-3">
-                <ShieldCheck className="w-6 h-6 text-blue-600 shrink-0" />
-                <p className="leading-relaxed">
-                  <strong>Anticipatory Defense for SIH Evaluators:</strong> How FARMPATH proves itself as a production-grade national system, not a student project:
-                </p>
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Step 5 • Institutional Defense</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">4 Tough Questions SIH Judges Will Ask</h2>
+                </div>
+                <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  Anticipatory Safeguards
+                </span>
               </div>
 
-              {/* 4 Real World Pillars */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1.5">
-                  <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                    <Scale className="w-4 h-4 text-emerald-600" />
-                    <span>1. Gate Quality Assurance &amp; Escrow</span>
-                  </span>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Digital Brix (sugar) and penetrometer (firmness) testing at the collection hub creates a binding digital manifest. Buyers lock funds in digital escrow before truck dispatch.
-                  </p>
-                </div>
-
-                <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1.5">
-                  <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
-                    <span>2. APMC Legal Compliance</span>
-                  </span>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Operates under Section 40 of amended State APMC Acts and Central FPO Direct Contracting guidelines, legally empowering registered FPOs to sell directly to processors.
-                  </p>
-                </div>
-
-                <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1.5">
-                  <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                    <Fuel className="w-4 h-4 text-purple-600" />
-                    <span>3. Rural Fleet Pooling &amp; Advances</span>
-                  </span>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Partners with local transport unions (Tata 407/Eicher). Drivers receive a 40% fuel advance upon loading and final settlement upon OTP sign-off at the factory gate.
-                  </p>
-                </div>
-
-                <div className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1.5">
-                  <span className="font-bold text-slate-900 block flex items-center gap-1.5">
-                    <Building className="w-4 h-4 text-amber-600" />
-                    <span>4. National e-NAM Data Sync</span>
-                  </span>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Automated 6:00 AM daily cron workers download official price bulletins across 2,800+ mandis via the Central Agmarknet REST API, cached in MongoDB Atlas for 0 ms queries.
-                  </p>
-                </div>
+              {/* 4 Interactive Accordion Question Cards */}
+              <div className="space-y-2 text-xs">
+                {[
+                  {
+                    id: 1,
+                    q: '1. "What if the buyer rejects the crop at the factory gate?"',
+                    a: 'Pre-dispatch digital assaying (Brix & firmness testing) at the collection hub creates an immutable digital grade certificate. Buyers lock payment into digital escrow before the truck departs, eliminating gate renegotiation.',
+                    tag: 'Quality & Escrow'
+                  },
+                  {
+                    id: 2,
+                    q: '2. "Is bypassing the APMC mandi legally compliant?"',
+                    a: '100% legal. FARMPATH operates under Section 40 of amended State APMC Acts and the Central FPO Direct Procurement Framework (2020), which legally authorizes Farmer Producer Organizations to sell directly to processors.',
+                    tag: 'APMC Section 40'
+                  },
+                  {
+                    id: 3,
+                    q: '3. "How do small farmers arrange refrigerated trucks in villages?"',
+                    a: 'FARMPATH aggregates loads across local transport unions (Tata 407 & Eicher 5-ton). Drivers receive a 40% fuel advance upon loading and final payment via OTP sign-off upon factory delivery.',
+                    tag: 'Fleet Pooling'
+                  },
+                  {
+                    id: 4,
+                    q: '4. "Where do your daily mandi price feeds come from?"',
+                    a: 'Automated 6:00 AM daily cron workers query the Central Agmarknet & e-NAM REST APIs across 2,800+ national mandis. Prices are synced into MongoDB Atlas for zero-latency route optimization.',
+                    tag: 'Agmarknet API'
+                  }
+                ].map(faq => {
+                  const isOpen = activeFaqId === faq.id;
+                  return (
+                    <div
+                      key={faq.id}
+                      onClick={() => setActiveFaqId(faq.id)}
+                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                        isOpen
+                          ? 'bg-slate-950 border-blue-500/60 shadow-xs'
+                          : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-white text-xs sm:text-sm">{faq.q}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-blue-300 border border-slate-700 font-mono">
+                            {faq.tag}
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180 text-blue-400' : ''}`} />
+                        </div>
+                      </div>
+                      {isOpen && (
+                        <p className="text-slate-300 text-[11px] sm:text-xs leading-relaxed mt-2 pt-2 border-t border-slate-800/80 animate-in fade-in duration-150">
+                          {faq.a}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              <div className="p-3.5 bg-slate-900 text-white rounded-xl border border-slate-800 text-xs text-center font-bold">
+              <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-2xl text-xs text-center font-bold text-emerald-300">
                 🏆 Built by Team 2brain Cells for Smart India Hackathon 2026 (Problem Statement: SIH26033)
               </div>
             </div>
@@ -487,29 +668,29 @@ export default function DemoModal() {
         </div>
 
         {/* Modal Controls Footer */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 py-3.5 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setCurrentChapter(1);
                 setIsPlaying(false);
               }}
-              className="px-3 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1.5 transition-colors"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
               <span>Restart</span>
             </button>
 
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-xs ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow-xs ${
                 isPlaying
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  ? 'bg-amber-500 hover:bg-amber-600 text-slate-950'
+                  : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
               }`}
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-              <span>{isPlaying ? 'Pause Auto-Play' : 'Auto Play (6s per Ch)'}</span>
+              <span>{isPlaying ? 'Pause Auto-Play' : 'Auto Play (7s)'}</span>
             </button>
           </div>
 
@@ -520,10 +701,10 @@ export default function DemoModal() {
                 setCurrentChapter(prev => Math.max(1, prev - 1));
                 setIsPlaying(false);
               }}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 shadow-2xs"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1"
             >
               <SkipBack className="w-3.5 h-3.5" />
-              <span>Previous</span>
+              <span>Back</span>
             </button>
 
             <button
@@ -532,9 +713,9 @@ export default function DemoModal() {
                 setCurrentChapter(prev => Math.min(totalChapters, prev + 1));
                 setIsPlaying(false);
               }}
-              className="px-5 py-2 rounded-xl text-xs font-black bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-40 disabled:pointer-events-none flex items-center gap-2 shadow-xs cursor-pointer"
+              className="px-5 py-1.5 rounded-xl text-xs font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
-              <span>{currentChapter === totalChapters ? 'Finished' : 'Next Chapter'}</span>
+              <span>{currentChapter === totalChapters ? 'Completed' : 'Next Step'}</span>
               <SkipForward className="w-3.5 h-3.5" />
             </button>
           </div>
