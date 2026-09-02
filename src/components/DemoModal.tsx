@@ -48,7 +48,7 @@ export default function DemoModal() {
   const [activeFaqId, setActiveFaqId] = useState<number>(1);
   const [gainBreakdownTab, setGainBreakdownTab] = useState<'total' | 'commission' | 'rot' | 'premium'>('total');
 
-  const totalChapters = 5;
+  const totalChapters = 4;
 
   const optimal = results.optimalRoute;
   const baseline = results.baselineRoute;
@@ -95,11 +95,10 @@ export default function DemoModal() {
   if (!isDemoModalOpen) return null;
 
   const chapters = [
-    { id: 1, title: 'The Harvest Lot', tag: '1. The Setup' },
-    { id: 2, title: 'The Mandi Trap', tag: '2. The Leak' },
-    { id: 3, title: 'FARMPATH Engine', tag: '3. The Route' },
-    { id: 4, title: '+₹29,500 Realization', tag: '4. The Payout' },
-    { id: 5, title: 'Ground Safeguards', tag: '5. The Jury Proof' },
+    { id: 1, title: 'The Harvest Lot', tag: '1. Setup' },
+    { id: 2, title: 'The Mandi Trap', tag: '2. Leak' },
+    { id: 3, title: 'FARMPATH Engine', tag: '3. Route' },
+    { id: 4, title: '+₹29,500 Realization', tag: '4. Victory' },
   ];
 
   return (
@@ -585,78 +584,53 @@ export default function DemoModal() {
                   </button>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* ================= CHAPTER 5: GROUND REALITY SAFEGUARDS (INTERACTIVE JURY PROOF) ================= */}
-          {currentChapter === 5 && (
-            <div className="space-y-4 animate-in fade-in duration-200">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Step 5 • Institutional Defense</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-white">4 Tough Questions SIH Judges Will Ask</h2>
-                </div>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                  Anticipatory Safeguards
+              {/* 4 Real-World Execution Safeguards */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Institutional Guarantees &amp; Safeguards:
                 </span>
-              </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 space-y-0.5">
+                    <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Digital Escrow Payment</span>
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Pre-dispatch quality assaying at cold hub; buyer payment locked in escrow before departure.
+                    </p>
+                  </div>
 
-              {/* 4 Interactive Accordion Question Cards */}
-              <div className="space-y-2 text-xs">
-                {[
-                  {
-                    id: 1,
-                    q: '1. "What if the buyer rejects the crop at the factory gate?"',
-                    a: 'Pre-dispatch digital assaying (Brix & firmness testing) at the collection hub creates an immutable digital grade certificate. Buyers lock payment into digital escrow before the truck departs, eliminating gate renegotiation.',
-                    tag: 'Quality & Escrow'
-                  },
-                  {
-                    id: 2,
-                    q: '2. "Is bypassing the APMC mandi legally compliant?"',
-                    a: '100% legal. FARMPATH operates under Section 40 of amended State APMC Acts and the Central FPO Direct Procurement Framework (2020), which legally authorizes Farmer Producer Organizations to sell directly to processors.',
-                    tag: 'APMC Section 40'
-                  },
-                  {
-                    id: 3,
-                    q: '3. "How do small farmers arrange refrigerated trucks in villages?"',
-                    a: 'FARMPATH aggregates loads across local transport unions (Tata 407 & Eicher 5-ton). Drivers receive a 40% fuel advance upon loading and final payment via OTP sign-off upon factory delivery.',
-                    tag: 'Fleet Pooling'
-                  },
-                  {
-                    id: 4,
-                    q: '4. "Where do your daily mandi price feeds come from?"',
-                    a: 'Automated 6:00 AM daily cron workers query the Central Agmarknet & e-NAM REST APIs across 2,800+ national mandis. Prices are synced into MongoDB Atlas for zero-latency route optimization.',
-                    tag: 'Agmarknet API'
-                  }
-                ].map(faq => {
-                  const isOpen = activeFaqId === faq.id;
-                  return (
-                    <div
-                      key={faq.id}
-                      onClick={() => setActiveFaqId(faq.id)}
-                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
-                        isOpen
-                          ? 'bg-slate-950 border-blue-500/60 shadow-xs'
-                          : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-white text-xs sm:text-sm">{faq.q}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-blue-300 border border-slate-700 font-mono">
-                            {faq.tag}
-                          </span>
-                          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180 text-blue-400' : ''}`} />
-                        </div>
-                      </div>
-                      {isOpen && (
-                        <p className="text-slate-300 text-[11px] sm:text-xs leading-relaxed mt-2 pt-2 border-t border-slate-800/80 animate-in fade-in duration-150">
-                          {faq.a}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+                  <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 space-y-0.5">
+                    <span className="font-bold text-blue-400 flex items-center gap-1.5">
+                      <Scale className="w-4 h-4" />
+                      <span>APMC Section 40 Legal</span>
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      100% legally compliant direct procurement under Central FPO framework (2020).
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 space-y-0.5">
+                    <span className="font-bold text-amber-400 flex items-center gap-1.5">
+                      <Fuel className="w-4 h-4" />
+                      <span>Rural Fleet Pooling</span>
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Tata 407 &amp; Eicher truck network with 40% fuel advances and OTP delivery sign-off.
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 space-y-0.5">
+                    <span className="font-bold text-purple-400 flex items-center gap-1.5">
+                      <Zap className="w-4 h-4" />
+                      <span>Daily 6 AM e-NAM Sync</span>
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Central Agmarknet &amp; e-NAM APIs synced across 2,800+ mandis in MongoDB Atlas.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-2xl text-xs text-center font-bold text-emerald-300">
