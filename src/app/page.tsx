@@ -100,10 +100,14 @@ export default function ControlCenter() {
               <img src="/sih-bulb.png" alt="SIH Bulb" className="w-7 h-7 object-contain" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-orange-400 font-black text-sm tracking-wide">{t.sihHeader}</span>
                 <span className="text-slate-500">•</span>
                 <span className="text-emerald-400 font-bold text-xs">{t.category}</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 border border-slate-700">
+                  Team: 2brain Cells
+                </span>
               </div>
               <span className="text-slate-400 text-xs">{t.problemCode}</span>
             </div>

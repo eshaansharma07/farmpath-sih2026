@@ -84,6 +84,10 @@ export default function Navbar() {
               <span className="text-slate-300 font-medium text-[11px] hidden md:inline whitespace-nowrap">
                 Problem Statement: <strong className="text-white font-mono">SIH26033</strong>
               </span>
+              <span className="text-slate-600 hidden lg:inline">|</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden lg:inline whitespace-nowrap">
+                Team: 2brain Cells
+              </span>
             </div>
           </div>
 

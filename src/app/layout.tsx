@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SimulationProvider } from '../lib/context/SimulationContext';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import TechDrawer from '../components/TechDrawer';
 import DemoModal from '../components/DemoModal';
 
 export const metadata: Metadata = {
   title: 'FARMPATH — Intelligent Farm-to-Market Supply-Chain Optimization (SIH 2026)',
-  description: 'Smart India Hackathon 2026 (SIH26033) — Find the route that earns the farmer more.',
+  description: 'Smart India Hackathon 2026 (SIH26033) — Team 2brain Cells — Find the route that earns the farmer more.',
 };
 
 export default function RootLayout({
@@ -23,6 +24,7 @@ export default function RootLayout({
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 overflow-x-hidden">
             {children}
           </main>
+          <Footer />
           <TechDrawer />
           <DemoModal />
         </SimulationProvider>
