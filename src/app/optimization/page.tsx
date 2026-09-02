@@ -15,7 +15,12 @@ import {
   ChevronRight,
   TrendingUp,
   Layers,
-  Award
+  Award,
+  Flame,
+  Fuel,
+  Scale,
+  DollarSign,
+  Calculator
 } from 'lucide-react';
 
 export default function OptimizationEnginePage() {
@@ -141,6 +146,173 @@ export default function OptimizationEnginePage() {
               <div className="p-2.5 bg-slate-800/70 rounded-lg border border-slate-700">
                 <span className="font-semibold text-white block">4. Perishability Cutoff:</span>
                 Expected spoilage ≤ Safety threshold (10.0%)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 📐 FORMULAS USED IN THE OPTIMIZATION ENGINE */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800">
+              <Calculator className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Mathematical Formulations &amp; Physical Laws Used
+              </h3>
+              <p className="text-xs text-slate-500">
+                100% deterministic arithmetic grounded in thermodynamics and commercial Punjab freight logistics:
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
+            Deterministic Engine
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
+          {/* Formula 1: Arrhenius Spoilage */}
+          <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-rose-400 flex items-center gap-1.5 text-xs sm:text-sm">
+                <Flame className="w-4 h-4" />
+                <span>1. Thermodynamic Spoilage Decay (Arrhenius)</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">Respiration Kinetics</span>
+            </div>
+
+            {/* Formula Block */}
+            <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs sm:text-sm text-emerald-300 overflow-x-auto text-center font-bold">
+              Loss% = 100 × (1 − e<sup>−k · (1 + β·(T − 20)) · t · α_cold · γ_vib</sup>)
+            </div>
+
+            <div className="space-y-1.5 text-[11px] text-slate-300">
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">k (Biological Decay Rate):</span>
+                <span className="font-mono text-white font-bold">
+                  {cropLot.crop === 'Tomato' ? '0.0035 (Tomato)' : cropLot.crop === 'Onion' ? '0.0008 (Onion)' : cropLot.crop === 'Potato' ? '0.0006 (Potato)' : '0.0001 (Wheat)'}
+                </span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">β (Thermal Sensitivity):</span>
+                <span className="font-mono text-white">0.05 / °C (rate doubles every 10°C)</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">T (Ambient Air Temperature):</span>
+                <span className="font-mono text-amber-300 font-bold">{conditions.ambientTemperatureC}°C</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">α_cold (Cold Chain Multiplier):</span>
+                <span className="font-mono text-blue-300 font-bold">0.25 (Cold Hub) vs 1.0 (Open Tractor)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">γ_vib (Road Mechanical Vibration):</span>
+                <span className="font-mono text-white">1.0 (Smooth Highway) vs 1.35 (Dirt Road)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Formula 2: Freight Tariff */}
+          <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-amber-400 flex items-center gap-1.5 text-xs sm:text-sm">
+                <Fuel className="w-4 h-4" />
+                <span>2. Commercial Freight Logistics Tariff</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">Punjab Corridor</span>
+            </div>
+
+            {/* Formula Block */}
+            <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs sm:text-sm text-amber-300 overflow-x-auto text-center font-bold">
+              Freight = BaseFee + (Dist<sub>km</sub> × (18 + 10·Tons) × (Diesel/95)<sup>1.4</sup> × RoadFactor) + Tolls
+            </div>
+
+            <div className="space-y-1.5 text-[11px] text-slate-300">
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">BaseFee (Dispatch &amp; Loading):</span>
+                <span className="font-mono text-white font-bold">₹350 minimum staging</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">Payload Tonnage:</span>
+                <span className="font-mono text-white font-bold">{(cropLot.quantityKg / 1000).toFixed(1)} Metric Tons</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">Diesel Fuel Price Index:</span>
+                <span className="font-mono text-amber-300 font-bold">₹{conditions.fuelPricePerLiter}/L (baseline ₹95/L)</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">Fuel Elasticity Exponent:</span>
+                <span className="font-mono text-white">1.4 (accounts for engine idle &amp; AC)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Tolls &amp; Interstate Checkposts:</span>
+                <span className="font-mono text-white">₹120 per national highway toll plaza</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Formula 3: Net Realization Objective */}
+          <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-emerald-400 flex items-center gap-1.5 text-xs sm:text-sm">
+                <Scale className="w-4 h-4" />
+                <span>3. Net Farmer Realization Objective</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">Optimization Target</span>
+            </div>
+
+            {/* Formula Block */}
+            <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs sm:text-sm text-emerald-300 overflow-x-auto text-center font-bold">
+              Max R<sub>net</sub> = [Q<sub>deliv</sub> × P<sub>buyer</sub> − (Transport + Handling + Storage + Intermediary)] / Q<sub>harvest</sub>
+            </div>
+
+            <div className="space-y-1.5 text-[11px] text-slate-300">
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">Delivered Quantity:</span>
+                <span className="font-mono text-white font-bold">Q<sub>deliv</sub> = Q<sub>harvest</sub> × (1 − Loss%)</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">Buyer Price (P_buyer):</span>
+                <span className="font-mono text-white">Fixed contract or wholesale spot price</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Real-World Outcome:</span>
+                <span className="font-mono text-emerald-400 font-bold">Maximizes cash in farmer&apos;s pocket</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Formula 4: Intermediary Commission Elimination */}
+          <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-blue-400 flex items-center gap-1.5 text-xs sm:text-sm">
+                <DollarSign className="w-4 h-4" />
+                <span>4. Intermediary Fee Elimination</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">Commission Elimination</span>
+            </div>
+
+            {/* Formula Block */}
+            <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-blue-200 space-y-1 text-center font-bold">
+              <div>Mandi Fee = GrossValue × (8.5% Arhatiya + 2% Labor + Weighment)</div>
+              <div className="text-emerald-300 font-bold">FARMPATH Fee = ₹0 (Direct Contract &amp; FPO Settlement)</div>
+            </div>
+
+            <div className="space-y-1.5 text-[11px] text-slate-300">
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">Conventional Mandi Cut:</span>
+                <span className="font-mono text-rose-400 font-bold">−₹{(baseline?.costBreakdown.intermediaryCostTotal || 8032).toLocaleString()} on current lot</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1">
+                <span className="text-slate-400">FARMPATH Intermediary Cut:</span>
+                <span className="font-mono text-emerald-400 font-bold">₹0.00 (100% Retained by Farmer)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Net Extra Farmer Realization:</span>
+                <span className="font-mono text-emerald-400 font-bold">+₹{results.totalLotValueGain.toLocaleString()} Profit Gain</span>
               </div>
             </div>
           </div>
