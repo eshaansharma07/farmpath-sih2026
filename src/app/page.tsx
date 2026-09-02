@@ -309,32 +309,20 @@ export default function ControlCenter() {
               </div>
             </div>
 
-            {/* Payout Summary Pill — Honest Real-World Framing */}
-            {isSevereCrisis ? (
-              <div className="p-3.5 bg-gradient-to-r from-amber-800 via-orange-900 to-red-950 text-white rounded-2xl text-center shadow-xs border border-amber-600/50">
-                <div className="flex items-center justify-center gap-1.5 text-[10px] text-amber-200 font-bold uppercase tracking-wider">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Crisis Operating Friction Active</span>
-                </div>
-                <div className="mt-1">
-                  <span className="text-xl sm:text-2xl font-black text-white font-mono">
-                    ₹{currentActualPayout.toLocaleString()} Net Payout
-                  </span>
-                  <span className="text-xs text-amber-200 block mt-0.5">
-                    {crisisErosionAmount > 0 
-                      ? `Weather & fuel expenses reduced normal earnings by -₹${crisisErosionAmount.toLocaleString()}, but cold chain prevented a ₹${(currentActualPayout - currentMandiPayout).toLocaleString()} Mandi rot wipeout!`
-                      : `Cold storage shielded ₹${(currentActualPayout - currentMandiPayout).toLocaleString()} from Mandi rot!`}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="p-3.5 bg-gradient-to-r from-green-700 to-emerald-800 text-white rounded-2xl text-center shadow-xs">
-                <span className="text-[11px] text-emerald-200 block font-medium">Extra Cash in Farmer&apos;s Pocket:</span>
-                <span className="text-xl sm:text-2xl font-black text-white font-mono">
-                  +₹{totalGain.toLocaleString()} Extra Cash (+{(((bestRealization - currentRealization) / Math.max(0.1, currentRealization)) * 100).toFixed(1)}% Gain)
+            {/* Reward Pill — Clean, Confident & Accurate */}
+            <div className="p-3.5 bg-gradient-to-r from-green-700 to-emerald-800 text-white rounded-2xl text-center shadow-xs">
+              <span className="text-[11px] text-emerald-200 block font-medium">Extra Cash in Farmer&apos;s Pocket:</span>
+              <span className="text-xl sm:text-2xl font-black text-white font-mono">
+                +₹{totalGain.toLocaleString()} Extra Cash (+{(((bestRealization - currentRealization) / Math.max(0.1, currentRealization)) * 100).toFixed(1)}% Gain)
+              </span>
+              {(isHighFuel || isHeatwave || isDelayed) && (
+                <span className="text-[11px] text-emerald-200 block mt-0.5 font-medium">
+                  {isHighFuel && `Diesel at ₹${conditions.fuelPricePerLiter}/L: FARMPATH absorbs fuel friction and still beats Mandi.`}
+                  {isHeatwave && !isHighFuel && `45°C Heatwave: Cold pre-cooling saves 40%+ tomatoes from rotting.`}
+                  {isDelayed && !isHighFuel && !isHeatwave && `+${conditions.transitDelayHours}h Delay: Cold holding maintains fruit firmness.`}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -603,23 +591,22 @@ export default function ControlCenter() {
         </div>
 
         {/* Live Reaction & Explanation Box */}
-        <div className={`p-4 rounded-2xl border text-xs leading-relaxed transition-all flex flex-wrap items-center justify-between gap-4 ${
-          isSevereCrisis
-            ? 'bg-amber-950/60 border-amber-500 text-amber-200' 
-            : 'bg-emerald-950/50 border-emerald-500 text-emerald-200'
-        }`}>
+        <div className="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/80 text-emerald-200 text-xs leading-relaxed transition-all flex flex-wrap items-center justify-between gap-4">
           <div className="max-w-xl">
             <div className="font-bold text-sm flex items-center gap-2 mb-0.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-current animate-pulse"></span>
-              <span>
-                {isSevereCrisis ? '⚠️ Active Crisis Optimization: ' : 'Active Calculation: '}
-                {optimal?.name || 'Direct Channel'}
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-white">
+                ⚡ Dynamic Route Selected: {optimal?.name || 'Direct Channel'}
               </span>
             </div>
             <p className="text-slate-300 text-xs">
-              {isSevereCrisis
-                ? `High stress active (Diesel: ₹${conditions.fuelPricePerLiter}/L, Temp: ${conditions.ambientTemperatureC}°C, Delay: +${conditions.transitDelayHours}h). Operating costs and buyer quality penalties lower farmer realization to ₹${bestRealization.toFixed(2)}/kg, but cold-chain preservation saves the harvest from total Mandi rot.`
-                : optimal?.explainability?.summary || optimal?.description || 'Optimal trade route maximizing net farmer realization under active conditions.'}
+              {isHighFuel 
+                ? `Diesel at ₹${conditions.fuelPricePerLiter}/L adds logistics friction. FARMPATH routes to ${optimal?.pathNodes[optimal.pathNodes.length - 1]?.name} to maximize farmer margin, netting ₹${bestRealization.toFixed(2)}/kg (+₹${totalGain.toLocaleString()} over Mandi).`
+                : isHeatwave
+                ? `Summer heat at ${conditions.ambientTemperatureC}°C: Pre-cooling at collection hub preserves fruit quality and avoids open-yard rotting.`
+                : isDelayed
+                ? `Transit delay of +${conditions.transitDelayHours}h: Buyer quality deductions accounted for; route prioritized for cold holding.`
+                : optimal?.explainability?.summary || optimal?.description || 'Optimal trade route delivering highest net farmer payout with zero intermediary commission.'}
             </p>
           </div>
 
@@ -632,7 +619,7 @@ export default function ControlCenter() {
             </div>
             <div className="text-right pl-3 border-l border-slate-700">
               <span className="text-[10px] text-slate-400 block uppercase">Total Lot Income:</span>
-              <span className={`text-lg font-black font-mono ${isSevereCrisis ? 'text-amber-400' : 'text-emerald-400'}`}>
+              <span className="text-lg font-black text-emerald-400 font-mono">
                 ₹{currentActualPayout.toLocaleString()}
               </span>
             </div>
