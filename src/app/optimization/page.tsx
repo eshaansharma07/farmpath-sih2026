@@ -106,9 +106,12 @@ export default function OptimizationEnginePage() {
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
             Mathematical Objective
           </span>
-          <span className="text-xs font-mono text-slate-400">
-            Linear Program • Deterministic Solver
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono bg-emerald-950/80 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/40 flex items-center gap-1.5 font-bold shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Live In-Code Variables: Synced with Active Lot</span>
+            </span>
+          </div>
         </div>
 
         <div className="space-y-3 font-mono text-xs sm:text-sm">
@@ -168,8 +171,9 @@ export default function OptimizationEnginePage() {
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">
-            Deterministic Engine
+          <span className="text-[11px] font-mono font-bold bg-emerald-100 text-emerald-900 px-3 py-1.5 rounded-xl border border-emerald-300 flex items-center gap-2 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Live In-Code Variables: Synced with Active Lot ({cropLot.crop} {cropLot.quantityKg.toLocaleString()} kg)</span>
           </span>
         </div>
 
