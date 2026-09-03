@@ -526,29 +526,29 @@ export default function ControlCenter() {
         </div>
 
         {/* Live Calculation Output */}
-        <div className="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/80 text-emerald-200 text-xs leading-relaxed transition-all flex flex-wrap items-center justify-between gap-4">
+        <div className="p-4 rounded-2xl border-2 bg-emerald-50 border-emerald-400 text-emerald-950 text-xs leading-relaxed transition-all flex flex-wrap items-center justify-between gap-4 shadow-sm">
           <div className="max-w-xl">
-            <div className="font-bold text-sm flex items-center gap-2 mb-0.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-white">
+            <div className="font-extrabold text-sm flex items-center gap-2 mb-0.5 text-emerald-950">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>
                 {t.solverOutputTitle} {optimal?.pathNodes[optimal.pathNodes.length - 1]?.name || 'Direct Buyer'}
               </span>
             </div>
-            <p className="text-slate-300 text-xs">
+            <p className="text-emerald-900 text-xs font-medium">
               {t.solverOutputText}
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <span className="text-[10px] text-slate-400 block uppercase">Net Realization:</span>
-              <span className="text-lg font-black text-white font-mono">
+              <span className="text-[10px] text-emerald-800 font-bold block uppercase">Net Realization:</span>
+              <span className="text-lg font-black text-emerald-950 font-mono">
                 ₹{bestRealization.toFixed(2)}/kg
               </span>
             </div>
-            <div className="text-right pl-3 border-l border-slate-700">
-              <span className="text-[10px] text-slate-400 block uppercase">{t.totalTakeHome}</span>
-              <span className="text-lg font-black text-emerald-400 font-mono">
+            <div className="text-right pl-3 border-l border-emerald-300">
+              <span className="text-[10px] text-emerald-800 font-bold block uppercase">{t.totalTakeHome}</span>
+              <span className="text-lg font-black text-emerald-700 font-mono">
                 ₹{currentActualPayout.toLocaleString()}
               </span>
             </div>
