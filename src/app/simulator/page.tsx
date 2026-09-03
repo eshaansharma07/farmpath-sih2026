@@ -26,6 +26,7 @@ import { solveSupplyChainOptimization, DEFAULT_SIMULATION_CONDITIONS } from '../
 export default function WhatIfSimulatorPage() {
   const { 
     cropLot, 
+    updateCropLot,
     conditions, 
     updateConditions, 
     resetConditions, 
@@ -58,26 +59,23 @@ export default function WhatIfSimulatorPage() {
 
   // Human, simple farmer-friendly advice
   const farmerFriendlyAdvice = React.useMemo(() => {
-    if (conditions.fuelPricePerLiter > 115) {
-      return `Diesel is expensive at ₹${conditions.fuelPricePerLiter}/L today, so truck travel costs more. We automatically picked a closer buyer so you don't waste your earnings on diesel fuel.`;
+    if (dieselDiff > 25 && conditions.ambientTemperatureC > 38) {
+      return `Extreme double shock! Diesel is +₹${dieselDiff}/L and heat is ${conditions.ambientTemperatureC}°C. FARMPATH actively pre-cools at Doaba Cold Hub to prevent a -₹40,000 rot disaster while pooling reefer trucks!`;
+    }
+    if (dieselDiff > 20) {
+      return `Diesel is high (+₹${dieselDiff}/L). Driving far burns money. Notice how FARMPATH redirects Gurmail to Doaba Cold Hub (just 12 km away) to pool logistics rather than driving solo to distant mandis!`;
+    }
+    if (conditions.ambientTemperatureC >= 40) {
+      return `Extreme heatwave (${conditions.ambientTemperatureC}°C). Open tractors will lose 40% of harvest to sun rot in mandi queues. FARMPATH locks in pre-cooling to guarantee 0% spoilage.`;
     }
     if (conditions.transitDelayHours >= 12) {
-      return `There is a heavy road delay of +${conditions.transitDelayHours} hours. We rerouted your truck to a nearby cold storage hub so your tomatoes stay fresh and do not rot in the heat.`;
-    }
-    if (conditions.ambientTemperatureC >= 38) {
-      return `It is a hot day (${conditions.ambientTemperatureC}°C). Produce spoils quickly in open tractors, so our route uses a pre-cooling cold hub to protect your crop quality.`;
-    }
-    if (conditions.marketPriceMultiplier <= 0.8) {
-      return `Mandi auction rates have dropped today. Instead of selling in a falling mandi, we send your crop to a food processing company with a fixed pre-agreed price.`;
-    }
-    if (conditions.buyerDemandMultiplier >= 1.3) {
-      return `Supermarkets and processing factories are buying in bulk today. We connected your truck to direct modern retail buyers paying top rupee.`;
+      return `Heavy ${conditions.transitDelayHours}h traffic delay. Produce held at chilled temperatures survives indefinitely, whereas mandi-bound tractors decompose on the highway.`;
     }
     if (hasRouteChanged) {
-      return `Because conditions changed, we found a different route that puts more cash in your hand than the default path.`;
+      return `Notice how the route dynamically rerouted to preserve maximum farmer margin as your conditions changed!`;
     }
-    return `Roads are smooth and conditions are normal. Selling directly to the processing plant gives you the highest profit with ₹0 middleman cut.`;
-  }, [conditions, hasRouteChanged]);
+    return `Conditions are stable. Direct delivery under APMC Section 40 provides Gurmail with highest net realization.`;
+  }, [conditions, hasRouteChanged, dieselDiff]);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in duration-300">
@@ -102,6 +100,70 @@ export default function WhatIfSimulatorPage() {
           <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
           <span>Reset to Normal Day (₹95 Diesel, 30°C)</span>
         </button>
+      </div>
+
+      {/* 🌾 COMMODITY & HARVEST LOT QUICK SELECTOR */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xl font-bold shadow-xs">
+            {cropLot.crop === 'Tomato' ? '🍅' : cropLot.crop === 'Onion' ? '🧅' : '🥔'}
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              Active Harvest Lot Being Optimized:
+            </span>
+            <div className="text-sm font-black text-slate-900 flex items-center gap-2">
+              <span>{cropLot.farmerName}&apos;s {cropLot.crop} Lot</span>
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                {cropLot.quantityKg.toLocaleString()} kg ({cropLot.maxTransitHours}h shelf limit)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 Quick Switcher Buttons */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-500 mr-1 hidden sm:inline">Switch Commodity:</span>
+          
+          <button
+            type="button"
+            onClick={() => updateCropLot({ crop: 'Tomato', quantityKg: 5000, maxTransitHours: 48 })}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              cropLot.crop === 'Tomato'
+                ? 'bg-rose-600 text-white shadow-xs ring-2 ring-rose-300'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+            }`}
+          >
+            <span>🍅 Tomato</span>
+            <span className="text-[10px] opacity-80">(5,000 kg)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => updateCropLot({ crop: 'Onion', quantityKg: 5000, maxTransitHours: 72 })}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              cropLot.crop === 'Onion'
+                ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-300'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+            }`}
+          >
+            <span>🧅 Onion</span>
+            <span className="text-[10px] opacity-80">(5,000 kg)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => updateCropLot({ crop: 'Potato', quantityKg: 10000, maxTransitHours: 120 })}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              cropLot.crop === 'Potato'
+                ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-300'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+            }`}
+          >
+            <span>🥔 Potato</span>
+            <span className="text-[10px] opacity-80">(10,000 kg)</span>
+          </button>
+        </div>
       </div>
 
       {/* BEFORE vs AFTER Real-Time Comparison Card */}
