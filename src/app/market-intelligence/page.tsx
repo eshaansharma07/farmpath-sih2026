@@ -13,8 +13,10 @@ import {
   Calendar,
   Layers,
   Cpu,
-  Info
+  Info,
+  Clock
 } from 'lucide-react';
+import GroundRealitySafeguards from '../../components/GroundRealitySafeguards';
 import {
   ResponsiveContainer,
   LineChart,
@@ -118,10 +120,14 @@ export default function MarketIntelligencePage() {
           </p>
         </div>
 
-        {/* Confidence Badge */}
-        <div className="flex items-center gap-2">
-          <div className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-bold flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
+        {/* Confidence Badge & e-NAM Sync Badge */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="px-3 py-1.5 rounded-xl bg-emerald-100 border border-emerald-300 text-xs text-emerald-900 font-bold flex items-center gap-1.5 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+            <span>Daily 6:00 AM e-NAM Sync Active</span>
+          </div>
+          <div className="px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800 font-bold flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-blue-600" />
             <span>LightGBM Model Confidence: 87%</span>
           </div>
         </div>
@@ -374,6 +380,11 @@ export default function MarketIntelligencePage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Institutional Safeguards & Regulatory Compliance Section */}
+      <div className="pt-2">
+        <GroundRealitySafeguards />
       </div>
     </div>
   );

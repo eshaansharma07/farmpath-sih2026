@@ -27,7 +27,7 @@ const ALL_NAV_ITEMS = [
   { href: '/map', label: 'Live Map', icon: MapPin },
   { href: '/comparison', label: 'Compare Routes', icon: GitCompare },
   { href: '/simulator', label: 'Simulator', icon: Sliders },
-  { href: '/market-intelligence', label: 'Market Prices', icon: TrendingUp },
+  { href: '/market-intelligence', label: 'Market Intelligence', icon: TrendingUp },
   { href: '/optimization', label: 'How We Calculate', icon: Cpu },
   { href: '/explainability', label: 'Why This Route?', icon: HelpCircle },
   { href: '/architecture', label: 'Tech Specs', icon: Layers },
