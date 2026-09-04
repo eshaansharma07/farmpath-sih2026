@@ -38,9 +38,8 @@ export function evaluateCandidatePath(
   const totalTransitHours = Math.round((path.totalTransitHours + conditions.transitDelayHours) * 10) / 10;
   const totalDistanceKm = path.totalDistanceKm;
 
-  // 2. Pricing at destination (includes buyer quality discount for delayed arrivals)
-  const cropScale = CROP_PRICE_SCALE[cropLot.crop] || 1.0;
-  const baseOffer = destinationNode.baseOfferPricePerKg || 28.0;
+  // 2. Pricing at destination (dynamically sourced from e-NAM live feed on destination node)
+  const baseOffer = destinationNode.baseOfferPricePerKg || (28.0 * (CROP_PRICE_SCALE[cropLot.crop] || 1.0));
 
   // Real-world perishable penalty: commercial buyers deduct 0.8% per hour delay due to lost shelf-life
   const isPerishable = cropLot.crop === 'Tomato';
@@ -48,7 +47,7 @@ export function evaluateCandidatePath(
     ? Math.min(0.28, (conditions.transitDelayHours || 0) * 0.009)
     : Math.min(0.08, (conditions.transitDelayHours || 0) * 0.002);
 
-  const grossPricePerKg = Math.round(baseOffer * cropScale * conditions.marketPriceMultiplier * (1 - delayDeductionPct) * 100) / 100;
+  const grossPricePerKg = Math.round(baseOffer * conditions.marketPriceMultiplier * (1 - delayDeductionPct) * 100) / 100;
 
   // 3. Spoilage calculation
   const maxAllowedSpoilage = getMaxAllowedSpoilagePct(cropLot.crop);

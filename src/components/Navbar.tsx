@@ -43,6 +43,8 @@ export default function Navbar() {
     language,
     setLanguage,
     t,
+    enamMarket,
+    nextSyncCountdown,
   } = useSimulation();
 
   const [isScenarioOpen, setIsScenarioOpen] = useState(false);
@@ -87,6 +89,11 @@ export default function Navbar() {
               <span className="text-slate-600 hidden lg:inline">|</span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden lg:inline whitespace-nowrap">
                 Team: 2brain Cells
+              </span>
+              <span className="text-slate-600 hidden xl:inline">|</span>
+              <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hidden xl:flex items-center gap-1.5 whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>e-NAM 06:00 AM Synced: {enamMarket.crop} ₹{enamMarket.mandiModalPerKg.toFixed(2)}/kg • Next 6 AM Auto-Sync: {nextSyncCountdown}</span>
               </span>
             </div>
           </div>

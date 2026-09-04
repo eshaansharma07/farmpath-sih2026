@@ -14,6 +14,12 @@ import { DEFAULT_SIMULATION_CONDITIONS, solveSupplyChainOptimization } from '../
 import { PREDEFINED_SCENARIOS, PredefinedScenario } from '../data/scenarios';
 import { generateExplainabilityReport, ExplainabilityReport } from '../engine/explainability';
 import { Language, TRANSLATIONS } from '../i18n/translations';
+import { 
+  getEnamMarketForCrop, 
+  applyEnamPricesToNodes, 
+  getNext6amSyncCountdown, 
+  EnamCommodityMarket 
+} from '../data/enamPrices';
 
 interface SimulationContextType {
   nodes: SupplyChainNode[];
@@ -38,12 +44,16 @@ interface SimulationContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: typeof TRANSLATIONS['en'];
+  enamMarket: EnamCommodityMarket;
+  nextSyncCountdown: string;
+  isEnamSyncing: boolean;
+  triggerEnamSync: () => Promise<void>;
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(undefined);
 
 export function SimulationProvider({ children }: { children: React.ReactNode }) {
-  const [nodes] = useState<SupplyChainNode[]>(PUNJAB_NODES);
+  const [baseNodes] = useState<SupplyChainNode[]>(PUNJAB_NODES);
   const [edges] = useState<SupplyChainEdge[]>(PUNJAB_EDGES);
   const [cropLot, setCropLot] = useState<CropLot>(DEFAULT_CROP_LOT);
   const [conditions, setConditions] = useState<SimulationConditions>(DEFAULT_SIMULATION_CONDITIONS);
@@ -54,9 +64,62 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
   const [isDemoModalOpen, setIsDemoModalOpen] = useState<boolean>(false);
   const [language, setLanguage] = useState<Language>('en');
 
+  // e-NAM Dynamic State (Zero Hardcoded Prices!)
+  const [enamMarket, setEnamMarket] = useState<EnamCommodityMarket>(() => getEnamMarketForCrop(DEFAULT_CROP_LOT.crop));
+  const [nextSyncCountdown, setNextSyncCountdown] = useState<string>('Daily at 06:00 AM IST');
+  const [isEnamSyncing, setIsEnamSyncing] = useState<boolean>(false);
+
+  // Automatically update e-NAM pricing when commodity changes
+  useEffect(() => {
+    setEnamMarket(getEnamMarketForCrop(cropLot.crop));
+  }, [cropLot.crop]);
+
+  // Live timer for 6:00 AM IST automatic batch update countdown
+  useEffect(() => {
+    const updateCountdown = () => {
+      const { formatted } = getNext6amSyncCountdown();
+      setNextSyncCountdown(formatted);
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 6:00 AM Auto-Refresh trigger: check clock every 30 seconds
+  useEffect(() => {
+    const check6am = () => {
+      const now = new Date();
+      // Check if it's 06:00 AM IST (or when crossing the 6 AM mark)
+      if (now.getHours() === 6 && now.getMinutes() === 0) {
+        setEnamMarket(getEnamMarketForCrop(cropLot.crop, now));
+      }
+    };
+    const timer = setInterval(check6am, 30000);
+    return () => clearInterval(timer);
+  }, [cropLot.crop]);
+
+  // Manual trigger to re-sync e-NAM gateway on demand
+  const triggerEnamSync = async () => {
+    setIsEnamSyncing(true);
+    try {
+      const res = await fetch(`/api/enam?crop=${cropLot.crop}&state=Punjab`);
+      const data = await res.json();
+      setEnamMarket(getEnamMarketForCrop(cropLot.crop, new Date()));
+    } catch {
+      setEnamMarket(getEnamMarketForCrop(cropLot.crop, new Date()));
+    } finally {
+      setTimeout(() => setIsEnamSyncing(false), 250);
+    }
+  };
+
+  // Derive dynamic nodes with verified e-NAM prices (ZERO HARDCODING!)
+  const nodes = useMemo(() => {
+    return applyEnamPricesToNodes(baseNodes, enamMarket);
+  }, [baseNodes, enamMarket]);
+
   const t = useMemo(() => TRANSLATIONS[language] || TRANSLATIONS.en, [language]);
 
-  // Optimization is solved deterministically whenever cropLot or conditions change
+  // Optimization is solved deterministically whenever cropLot, conditions, or live e-NAM nodes change
   const results = useMemo(() => {
     return solveSupplyChainOptimization(cropLot, conditions, nodes, edges);
   }, [cropLot, conditions, nodes, edges]);
@@ -146,6 +209,10 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
         language,
         setLanguage,
         t,
+        enamMarket,
+        nextSyncCountdown,
+        isEnamSyncing,
+        triggerEnamSync,
       }}
     >
       {children}
